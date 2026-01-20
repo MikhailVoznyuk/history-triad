@@ -20,7 +20,7 @@ export function SelectPersonProvider(
     }
 ) {
     const [idx, setIdx] = React.useState(() => initial);
-    const
+
 
     const v = useMemo(() => {
         const set = (n: number) => setIdx(n);
