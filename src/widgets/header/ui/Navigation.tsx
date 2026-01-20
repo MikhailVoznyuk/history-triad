@@ -110,11 +110,9 @@ export default function Navigation() {
         } else {
             const arcDur = 600;
             const linDur = 400;
-            console.log(navOrderPrev)
             const prevInd = navOrderPrev.findIndex((el) => el === +item.id) ?? 100;
             newNavOrder[0] = navOrderPrev[prevInd];
             newElements[0] = elementsRefPrev[prevInd];
-            console.log(prevInd)
             linearMove(elementsRefPrev[0], tl, positions.center, positions.bottom, linDur);
             linearMove(newElements[0], tl, positions[orderPositions[prevInd]], positions.center, linDur, 0.8 * linDur);
             switch (prevInd) {
