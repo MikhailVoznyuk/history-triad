@@ -6,6 +6,7 @@ import NavItem from "@/widgets/header/ui/NavItem";
 import usePositions from "@/widgets/header/lib/usePositions";
 import {makeScope, makeTimeline} from "@/shared/lib/anime";
 import {initCircle, initPosition, linearMove, arcCW} from "@/widgets/header/lib/animations";
+import {useSelectPerson} from "@/features/select-person";
 
 import type {NavItemData} from "@/widgets/header/model/types";
 import type {Scope, TL} from "@/shared/lib/anime";
@@ -31,6 +32,7 @@ const PERSONS_DATA: NavItemData[]  = [
 
 
 export default function Navigation() {
+    const person = useSelectPerson();
     const [radius, setRadius] = useState(200);
     const positions = usePositions(radius);
     const navOrderRef = useRef<number[]>(PERSONS_DATA.map((el) => +el.id));
@@ -45,6 +47,7 @@ export default function Navigation() {
     const isNavUsed = useRef(false);
 
     const onSelect = (item: NavItemData) => {
+        person.set(+item.id + 1);
 
         const tl = makeTimeline({autoplay: true});
 
@@ -110,25 +113,34 @@ export default function Navigation() {
         } else {
             const arcDur = 600;
             const linDur = 400;
-            const prevInd = navOrderPrev.findIndex((el) => el === +item.id) ?? 100;
-            newNavOrder[0] = navOrderPrev[prevInd];
-            newElements[0] = elementsRefPrev[prevInd];
-            linearMove(elementsRefPrev[0], tl, positions.center, positions.bottom, linDur);
+            const prevInd = navOrderPrev.findIndex((el) => el === +item.id);
+            if (prevInd < 0) return;
+
+            const selectedId = navOrderPrev[prevInd];
+            const selectedEl = elementsRefPrev[selectedId];
+
+            newNavOrder[0] = selectedId;
+            newElements[0] = selectedEl;
+
+            const prevCenterEl = elementsRefPrev[navOrderPrev[0]];
+            const prevLeftEl = elementsRefPrev[navOrderPrev[1]];
+            const prevRightEl = elementsRefPrev[navOrderPrev[2]];
+            linearMove(prevCenterEl, tl, positions.center, positions.bottom, linDur);
             linearMove(newElements[0], tl, positions[orderPositions[prevInd]], positions.center, linDur, 0.8 * linDur);
             switch (prevInd) {
                 case 1:
                     newNavOrder[1] = navOrderPrev[2];
-                    newElements[1] = elementsRefPrev[2];
+                    newElements[1] = prevRightEl;
                     newNavOrder[2] = navOrderPrev[0];
-                    newElements[2] = elementsRefPrev[0];
+                    newElements[2] = prevCenterEl;
                     arcCW(newElements[2], tl, positions.bottom, positions[orderPositions[2]], radius, 0,  arcDur);
                     arcCW(newElements[1], tl, positions[orderPositions[2]], positions[orderPositions[1]], radius, 0.8 * arcDur, arcDur);
                     break
                 case 2:
                     newNavOrder[1] = navOrderPrev[0];
-                    newElements[1] = elementsRefPrev[0];
+                    newElements[1] = prevCenterEl;
                     newNavOrder[2] = navOrderPrev[1];
-                    newElements[2] = elementsRefPrev[1];
+                    newElements[2] = prevLeftEl;
                     arcCW(newElements[1], tl, positions.bottom, positions[orderPositions[1]], radius, 0, arcDur);
                     arcCW(newElements[2], tl, positions[orderPositions[1]], positions[orderPositions[2]], radius, 0.8 * arcDur, arcDur);
             }
@@ -136,12 +148,9 @@ export default function Navigation() {
         }
 
         navOrderRef.current = newNavOrder;
-        elementsRef.current = newElements;
-
     }
     useEffect(() => {
         if (isNavInit.current || isNavUsed.current) return;
-        console.log('yes')
         tlRef.current = makeTimeline({autoplay: true});
         initPosition(elementsRef.current[0], tlRef.current, positions.center, positions.bottomLeft);
         initPosition(elementsRef.current[1], tlRef.current, positions.center, positions.top);
