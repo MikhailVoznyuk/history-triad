@@ -1,4 +1,3 @@
-import React from "react";
 import {makeTimeline, animeUtils} from "@/shared/lib/anime";
 import {Position} from "@/widgets/header/lib/usePositions";
 import type {TL} from "@/shared/lib/anime"
@@ -80,12 +79,14 @@ export function initCircle(
 }
 
 export function linearMove(
+
     el: HTMLDivElement | null,
     tl: TL,
     from: Position,
     to: Position,
     dur: number =  500,
     offset: number = 0,
+    scale: number = 1,
     ease: string = "outQuad",
 ) {
     if (!el) return;
@@ -96,6 +97,7 @@ export function linearMove(
             translateX: to.x,
             translateY: to.y,
             duration: dur,
+            scale,
             ease,
         },
         `-=${offset}`
@@ -141,4 +143,36 @@ export function arcCW(
         },
         `-=${offset}`
     )
+}
+
+export function changeOpacity(el: HTMLDivElement | null, tl: TL, opacity: number = 0, dur: number = 500, ease: string = "inOutQuad") {
+    if (!el) return;
+
+    tl.add(
+        el,
+        {
+            opacity,
+            duration: dur,
+            ease,
+        }
+    )
+
+    return tl;
+}
+
+
+export function customTranslate(el: HTMLDivElement | null, tl: TL, x: number, y: number, dur: number = 500, ease: string = "inOutQuad") {
+    if (!el) return;
+
+    tl.add(
+        el,
+        {
+            translateX: x,
+            translateY: y,
+            duration: dur,
+            ease,
+        }
+    )
+
+    return tl;
 }

@@ -29,7 +29,7 @@ export function MovingBackground({images, idx}: MovingBackgroundProps) {
                         willChange: "transform"
                     }}
                 >
-                    <Background img={images[idx]} priority/>
+                    <Background img={images[(idx == -1) ? 0 : idx + 1]} priority/>
                 </motion.div>
             </AnimatePresence>
         </div>

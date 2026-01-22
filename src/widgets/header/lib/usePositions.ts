@@ -6,7 +6,7 @@ export default function usePositions(r: number) {
         const d = Math.SQRT1_2;
 
         return {
-            center: {x: 0, y: 0, ang: 0},
+            center: {x: 0, y: -R * 0.4, ang: 0},
             top: {x: 0, y: -R, ang: -90},
             bottom: {x: 0, y: R, ang: 90},
             left: {x: -R, y: 0, ang: 180},

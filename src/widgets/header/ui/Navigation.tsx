@@ -1,12 +1,13 @@
 'use client';
 import React from "react";
 
-import {useState, useEffect, useRef, useMemo} from "react";
+import {useState, useEffect, useRef} from "react";
 import NavItem from "@/widgets/header/ui/NavItem";
 import usePositions from "@/widgets/header/lib/usePositions";
-import {makeScope, makeTimeline} from "@/shared/lib/anime";
-import {initCircle, initPosition, linearMove, arcCW} from "@/widgets/header/lib/animations";
+import {makeTimeline} from "@/shared/lib/anime";
+import {initCircle, initPosition, linearMove, arcCW, changeOpacity, customTranslate} from "@/widgets/header/lib/animations";
 import {useSelectPerson} from "@/features/select-person";
+import {MovingHeader} from "@/widgets/header/ui/movingHeader";
 
 import type {NavItemData} from "@/widgets/header/model/types";
 import type {Scope, TL} from "@/shared/lib/anime";
@@ -16,16 +17,19 @@ const PERSONS_DATA: NavItemData[]  = [
     {
         id: '0',
         shortName: 'Елисеев.Г.Г',
+        info: '1864–1949',
         img: '/persons/person1.webp',
     },
     {
         id: '1',
         shortName: 'Мартьянов Н.M',
+        info: '1844–1904',
         img: '/persons/person2.webp',
     },
     {
         id: '2',
         shortName: 'Лагидзе М.В',
+        info: '1869–1960',
         img: '/persons/person3.webp',
     },
 ]
@@ -42,14 +46,17 @@ export default function Navigation() {
     const scopeRef = useRef<Scope | null>(null);
     const tlRef = useRef<TL | null>(null);
     const circleRef = useRef<HTMLDivElement | null>(null);
+    const headerRef = useRef<HTMLDivElement | null>(null);
 
-    const isNavInit = useRef(false);
-    const isNavUsed = useRef(false);
+    const [isNavInit, setIsNavInit] = useState<boolean>(false);
+    const [isNavUsed, setIsNavUsed] = useState<boolean>(false);
 
     const onSelect = (item: NavItemData) => {
-        person.set(+item.id + 1);
+        person.set(+item.id);
 
         const tl = makeTimeline({autoplay: true});
+
+
 
         const navOrderPrev = navOrderRef.current.slice();
         const elementsRefPrev = elementsRef.current.slice();
@@ -59,7 +66,12 @@ export default function Navigation() {
         const orderPositions: PositionKey[] = ['center', 'left', 'right'];
         const orderIndexes = [0, 2, 1];
         const indexRelation = new Map<number, number>();
-        if (!isNavUsed.current) {
+        if (!isNavUsed) {
+
+            changeOpacity(headerRef.current, tl, 0, 400);
+            customTranslate(headerRef.current, tl, 0, 100);
+
+
             const dur = 800;
             const initPositions: PositionKey[] = ['bottomLeft', 'top', 'bottomRight'];
             for (let i = 0; i < navOrderPrev.length; i++) {
@@ -98,7 +110,7 @@ export default function Navigation() {
                 const el = elementsRefPrev[oldInd];
                 if (tlRef.current) {
                     if (i == 0) {
-                        linearMove(el, tl, positions[initPositions[oldInd]], positions[orderPositions[i]]);
+                        linearMove(el, tl, positions[initPositions[oldInd]], positions[orderPositions[i]], 500, 0, 1.4);
                         continue;
                     }
                     arcCW(el, tl, positions[initPositions[oldInd]], positions[orderPositions[i]], radius, dur * 0.8, dur);
@@ -107,8 +119,15 @@ export default function Navigation() {
 
             }
 
-            console.log(newNavOrder)
-            isNavUsed.current = true;
+            changeOpacity(headerRef.current, tl, 1, 400);
+
+            tl.then(() => {
+                setIsNavUsed(true);
+
+            })
+
+
+
 
         } else {
             const arcDur = 600;
@@ -125,15 +144,16 @@ export default function Navigation() {
             const prevCenterEl = elementsRefPrev[navOrderPrev[0]];
             const prevLeftEl = elementsRefPrev[navOrderPrev[1]];
             const prevRightEl = elementsRefPrev[navOrderPrev[2]];
-            linearMove(prevCenterEl, tl, positions.center, positions.bottom, linDur);
-            linearMove(newElements[0], tl, positions[orderPositions[prevInd]], positions.center, linDur, 0.8 * linDur);
+            linearMove(prevCenterEl, tl, positions.center, positions.top, linDur);
+            linearMove(newElements[0], tl, positions[orderPositions[prevInd]], positions.center, linDur, 0.8 * linDur, 1.4);
             switch (prevInd) {
                 case 1:
                     newNavOrder[1] = navOrderPrev[2];
                     newElements[1] = prevRightEl;
                     newNavOrder[2] = navOrderPrev[0];
                     newElements[2] = prevCenterEl;
-                    arcCW(newElements[2], tl, positions.bottom, positions[orderPositions[2]], radius, 0,  arcDur);
+
+                    arcCW(newElements[2], tl, positions.top, positions[orderPositions[2]], radius, 0,  arcDur);
                     arcCW(newElements[1], tl, positions[orderPositions[2]], positions[orderPositions[1]], radius, 0.8 * arcDur, arcDur);
                     break
                 case 2:
@@ -141,26 +161,26 @@ export default function Navigation() {
                     newElements[1] = prevCenterEl;
                     newNavOrder[2] = navOrderPrev[1];
                     newElements[2] = prevLeftEl;
-                    arcCW(newElements[1], tl, positions.bottom, positions[orderPositions[1]], radius, 0, arcDur);
+                    arcCW(newElements[1], tl, positions.top, positions[orderPositions[1]], radius, 0, arcDur);
                     arcCW(newElements[2], tl, positions[orderPositions[1]], positions[orderPositions[2]], radius, 0.8 * arcDur, arcDur);
             }
-
         }
 
         navOrderRef.current = newNavOrder;
     }
     useEffect(() => {
-        if (isNavInit.current || isNavUsed.current) return;
+        if (isNavInit || isNavUsed) return;
         tlRef.current = makeTimeline({autoplay: true});
         initPosition(elementsRef.current[0], tlRef.current, positions.center, positions.bottomLeft);
         initPosition(elementsRef.current[1], tlRef.current, positions.center, positions.top);
         initPosition(elementsRef.current[2], tlRef.current, positions.center, positions.bottomRight);
         initCircle(circleRef.current);
-        isNavInit.current = true;
+
+        changeOpacity(headerRef.current, tlRef.current, 1, 400);
     }, []);
 
 
-
+    console.log('aa', isNavUsed);
     return (
         <div ref={rootRef}
              className={`flex relative justify-center items-center`}
@@ -190,7 +210,27 @@ export default function Navigation() {
                     ))
                 }
             </div>
-
+            <div
+                ref={headerRef}
+                className={"absolute w-fit h-24 min-w-56 left-1/2 top-1/2 -translate-x-1/2  overflow-hidden"}
+                style={{
+                    padding: (isNavUsed) ? '0' : '20px',
+                    transform: `translateY(${isNavUsed ? '0' : '-50%'})`,
+                    opacity: (isNavUsed) ? 1 : 0,
+                }}
+            >
+                <MovingHeader
+                    idx={person.idx}
+                    headers={PERSONS_DATA.map(item => {
+                        return {
+                            mainText: item.shortName,
+                            addText: item.info,
+                        }
+                    })}
+                    empty={!isNavUsed}
+                    loop
+                />
+            </div>
         </div>
     )
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react";
-import {createContext, useContext, useMemo} from "react";
+import {createContext, useContext, useMemo, useRef} from "react";
 
 type Ctx = {
     idx: number,
@@ -13,7 +13,7 @@ const C = createContext<Ctx | null>(null);
 export function SelectPersonProvider(
     {
         children,
-        initial = 0
+        initial = -1
     } : {
         children: React.ReactNode,
         initial?: number
