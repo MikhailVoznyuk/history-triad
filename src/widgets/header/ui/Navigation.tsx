@@ -7,7 +7,7 @@ import usePositions from "@/widgets/header/lib/usePositions";
 import {makeTimeline} from "@/shared/lib/anime";
 import {initCircle, initPosition, linearMove, arcCW, changeOpacity, customTranslate} from "@/widgets/header/lib/animations";
 import {useSelectPerson} from "@/features/select-person";
-import {MovingHeader} from "@/widgets/header/ui/movingHeader";
+import {MovingHeader, HeaderEmpty} from "@/widgets/header/ui/movingHeader";
 
 import type {NavItemData} from "@/widgets/header/model/types";
 import type {Scope, TL} from "@/shared/lib/anime";
@@ -47,6 +47,7 @@ export default function Navigation() {
     const tlRef = useRef<TL | null>(null);
     const circleRef = useRef<HTMLDivElement | null>(null);
     const headerRef = useRef<HTMLDivElement | null>(null);
+    const headerEmptyRef = useRef<HTMLDivElement | null>(null);
 
     const [isNavInit, setIsNavInit] = useState<boolean>(false);
     const [isNavUsed, setIsNavUsed] = useState<boolean>(false);
@@ -55,8 +56,6 @@ export default function Navigation() {
         person.set(+item.id);
 
         const tl = makeTimeline({autoplay: true});
-
-
 
         const navOrderPrev = navOrderRef.current.slice();
         const elementsRefPrev = elementsRef.current.slice();
@@ -68,8 +67,8 @@ export default function Navigation() {
         const indexRelation = new Map<number, number>();
         if (!isNavUsed) {
 
-            changeOpacity(headerRef.current, tl, 0, 400);
-            customTranslate(headerRef.current, tl, 0, 100);
+            changeOpacity(headerEmptyRef.current, tl, 0, 400);
+
 
 
             const dur = 800;
@@ -119,7 +118,7 @@ export default function Navigation() {
 
             }
 
-            changeOpacity(headerRef.current, tl, 1, 400);
+
 
             tl.then(() => {
                 setIsNavUsed(true);
@@ -175,8 +174,7 @@ export default function Navigation() {
         initPosition(elementsRef.current[1], tlRef.current, positions.center, positions.top);
         initPosition(elementsRef.current[2], tlRef.current, positions.center, positions.bottomRight);
         initCircle(circleRef.current);
-
-        changeOpacity(headerRef.current, tlRef.current, 1, 400);
+        changeOpacity(headerEmptyRef.current, tlRef.current, 1, 400);
     }, []);
 
 
@@ -210,27 +208,37 @@ export default function Navigation() {
                     ))
                 }
             </div>
-            <div
-                ref={headerRef}
-                className={"absolute w-fit h-24 min-w-56 left-1/2 top-1/2 -translate-x-1/2  overflow-hidden"}
-                style={{
-                    padding: (isNavUsed) ? '0' : '20px',
-                    transform: `translateY(${isNavUsed ? '0' : '-50%'})`,
-                    opacity: (isNavUsed) ? 1 : 0,
-                }}
-            >
-                <MovingHeader
-                    idx={person.idx}
-                    headers={PERSONS_DATA.map(item => {
-                        return {
-                            mainText: item.shortName,
-                            addText: item.info,
-                        }
-                    })}
-                    empty={!isNavUsed}
-                    loop
-                />
-            </div>
+            {
+                (isNavUsed) ?
+                    <div
+                        ref={headerRef}
+                        className={"absolute w-fit h-24 min-w-56 left-1/2 top-1/2 -translate-x-1/2  overflow-hidden"}
+                        style={{
+                            padding: (isNavUsed) ? '0' : '20px',
+                            transform: `translateY(30px)`,
+                            opacity: (isNavUsed) ? 1 : 0,
+                            transition: '0.3s ease'
+                        }}
+                    >
+
+                        <MovingHeader
+                            idx={person.idx}
+                            headers={PERSONS_DATA.map(item => {
+                                return {
+                                    mainText: item.shortName,
+                                    addText: item.info,
+                                }
+                            })}
+                        />
+
+                    </div> :
+                    <div
+                        ref = {headerEmptyRef}
+                        className="absolute w-fit h-24 min-w-56 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0">
+                        <HeaderEmpty />
+                    </div>
+            }
+
         </div>
     )
 }
