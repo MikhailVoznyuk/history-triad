@@ -5,14 +5,11 @@ import * as THREE from 'three';
 import { gsap } from 'gsap';
 
 type Props = {
-  /** One or more images from /public (e.g. "/portraits/person.png"). Click cycles like the original demo. */
   images: string[];
-  /** Demo starts with a random image. Set startIndex if you want a fixed one. */
   startIndex?: number;
-  /** Demo behavior: click canvas -> next image. */
   clickToNext?: boolean;
-  /** Wrapper className (IMPORTANT: give it an explicit size, e.g. h-[600px] w-full). */
   className?: string;
+  active?: boolean;
 };
 
 type Listener<T> = (e: T) => void;
@@ -702,8 +699,16 @@ class GUIView {
   constructor(app: App, ControlKitClass: any) {
     this.app = app;
     this.ControlKitClass = ControlKitClass;
-    this.initControlKit();
-    this.disable();
+    // не инициируем тут
+  }
+
+  toggle() {
+    if (!this.controlKit) {
+      this.initControlKit();
+      this.disable();
+    }
+    if (this.controlKit._enabled) this.disable();
+    else this.enable();
   }
 
   private initControlKit() {
@@ -886,6 +891,10 @@ class App {
     this.animate();
   }
 
+  setClickToNext(v: boolean) {
+    this.clickToNext = v;
+  }
+
   private addListeners() {
     this.onResizeBound = this.resize.bind(this);
     this.onKeyUpBound = this.keyup.bind(this);
@@ -908,11 +917,26 @@ class App {
     this.ro = null;
   }
 
-  private animate() {
+  private running = false;
+
+  start() {
+    if (this.running) return;
+    this.running = true;
+    this.webgl.clock.start();
+    this.animate();
+  }
+
+  stop() {
+    this.running = false;
+    cancelAnimationFrame(this.raf);
+  }
+
+  private animate = () => {
+    if (!this.running) return;
     this.update();
     this.draw();
-    this.raf = requestAnimationFrame(this.animate.bind(this));
-  }
+    this.raf = requestAnimationFrame(this.animate);
+  };
 
   private update() {
     this.webgl.update();
@@ -945,36 +969,55 @@ class App {
   }
 }
 
-export function InteractiveParticles({ images, startIndex, clickToNext = true, className }: Props) {
+export function InteractiveParticles({ images, startIndex, clickToNext = true, className, active}: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
+  const appRef = useRef<App | null>(null);
 
+  // init ONCE
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    if (!images || images.length === 0) {
-      // eslint-disable-next-line no-console
-      console.error('[InteractiveParticles] Provide at least 1 image URL in props.images');
-      return;
-    }
-
-    const idx = startIndex == null ? null : Math.max(0, Math.min(images.length - 1, startIndex));
-
-    let app: App | null = null;
     let cancelled = false;
 
     (async () => {
       const mod = await import('@brunoimbrizi/controlkit');
       if (cancelled) return;
       const ControlKitClass = (mod as any).default || (mod as any);
-      app = new App(el, images, idx, clickToNext, ControlKitClass);
+
+      appRef.current = new App(el, images, null, clickToNext, ControlKitClass);
     })();
 
     return () => {
       cancelled = true;
-      app?.destroy();
+      appRef.current?.destroy();
+      appRef.current = null;
     };
-  }, [images, startIndex, clickToNext]);
+    // ВАЖНО: пустые deps, чтобы App не пересоздавался
+  }, []);
+
+  // react to startIndex changes without remount
+  useEffect(() => {
+    const app = appRef.current;
+    if (!app) return;
+
+    if (startIndex != null) {
+      const idx = Math.max(0, Math.min(images.length - 1, startIndex));
+      app.webgl.goto(idx);
+    }
+  }, [startIndex]);
+
+  // react to clickToNext changes
+  useEffect(() => {
+    appRef.current?.setClickToNext(clickToNext);
+  }, [clickToNext]);
+
+  useEffect(() => {
+    const app = appRef.current;
+    if (!app) return;
+    if (active === false) app.stop();
+    else app.start();
+  }, [active]);
 
   return <div ref={ref} className={className} />;
 }

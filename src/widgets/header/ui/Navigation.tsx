@@ -53,7 +53,7 @@ export default function Navigation() {
     const [isNavUsed, setIsNavUsed] = useState<boolean>(false);
 
     const onSelect = (item: NavItemData) => {
-        person.set(+item.id);
+
 
         const tl = makeTimeline({autoplay: true});
 
@@ -120,10 +120,7 @@ export default function Navigation() {
 
 
 
-            tl.then(() => {
-                setIsNavUsed(true);
 
-            })
 
 
 
@@ -164,6 +161,12 @@ export default function Navigation() {
                     arcCW(newElements[2], tl, positions[orderPositions[1]], positions[orderPositions[2]], radius, 0.8 * arcDur, arcDur);
             }
         }
+
+        tl.then(() => {
+            setIsNavUsed(true);
+            person.set(+item.id);
+
+        })
 
         navOrderRef.current = newNavOrder;
     }

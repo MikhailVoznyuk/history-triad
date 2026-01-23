@@ -1,2 +1,2 @@
-export { InteractiveParticles } from './ui/InteractiveParticles';
-export { default } from './ui/InteractiveParticles';
+export { InteractiveParticles } from '../person-hero/ui/InteractiveParticles';
+export { default } from '../person-hero/ui/InteractiveParticles';
