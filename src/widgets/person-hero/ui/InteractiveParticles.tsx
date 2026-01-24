@@ -436,6 +436,7 @@ class Particles {
 
   private handlerInteractiveMove!: (e: InteractiveEvents['interactive-move']) => void;
   private loadId = 0;
+  private contentBounds = { minX: 0, minY: 0, maxX: 0, maxY: 0 };
 
   constructor(webgl: WebGLView) {
     this.webgl = webgl;
@@ -501,26 +502,37 @@ class Particles {
 
     this.width = w;
     this.height = h;
-    this.numPoints = w * h;
 
-    let numVisible = 0;
+    let minX = w, minY = h, maxX = 0, maxY = 0;
 
-    // 1) сначала считаем, сколько будет точек (чтобы правильно выделить массивы)
-    for (let y = 0; y < h; y += step) {
-      for (let x = 0; x < w; x += step) {
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
         const i = (y * w + x) * 4;
         const a = data[i + 3];
         if (a < 10) continue;
 
-        if (discard && data[i] <= threshold) continue;
-        if (Math.random() > density) continue;
-
-        numVisible++;
-        if (numVisible >= maxParticles) break;
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
       }
-      if (numVisible >= maxParticles) break;
     }
 
+    if (maxX <= minX || maxY <= minY) {
+      minX = 0; minY = 0; maxX = w; maxY = h;
+    }
+
+    const pad = 8;
+    minX = Math.max(0, minX - pad);
+    minY = Math.max(0, minY - pad);
+    maxX = Math.min(w, maxX + pad);
+    maxY = Math.min(h, maxY + pad);
+
+    this.contentBounds = { minX, minY, maxX, maxY };
+
+    this.numPoints = w * h;
+
+    // --- вместо двух проходов: один проход с равномерной выборкой по всей картинке ---
     const uniforms = {
       uTime: { value: 0 },
       uRandom: { value: 1.0 },
@@ -557,29 +569,53 @@ class Particles {
 
     geometry.setIndex(new THREE.BufferAttribute(new Uint16Array([0, 2, 1, 2, 3, 1]), 1));
 
-    // ВАЖНО: pindex лучше Float32, чтобы не упереться в 65535 как у Uint16
-    const indices = new Float32Array(numVisible);
-    const offsets = new Float32Array(numVisible * 3);
-    const angles = new Float32Array(numVisible);
+// фиксированный бюджет, чтобы не взорвать ноут
+    const cap = maxParticles;
 
-    for (let y = 0, j = 0; y < h && j < numVisible; y += step) {
-      for (let x = 0; x < w && j < numVisible; x += step) {
+// массивы под cap (а не под “сколько получилось”)
+    const offsets = new Float32Array(cap * 3);
+    const angles = new Float32Array(cap);
+
+    let seen = 0;     // сколько кандидатов увидели
+    let filled = 0;   // сколько реально влезло в cap
+
+    for (let y = 0; y < h; y += step) {
+      for (let x = 0; x < w; x += step) {
         const i = (y * w + x) * 4;
         const a = data[i + 3];
         if (a < 10) continue;
 
+        // твои фильтры (оставь как у тебя)
         if (discard && data[i] <= threshold) continue;
         if (Math.random() > density) continue;
 
-        offsets[j * 3 + 0] = x;
-        offsets[j * 3 + 1] = y;
-        offsets[j * 3 + 2] = 0;
+        seen++;
 
-        indices[j] = j;
-        angles[j] = Math.random() * Math.PI;
-        j++;
+        // reservoir sampling:
+        // пока не набили cap — пишем подряд
+        // когда набили — иногда заменяем случайную старую точку
+        let k: number;
+        if (filled < cap) {
+          k = filled;
+          filled++;
+        } else {
+          const r = Math.floor(Math.random() * seen);
+          if (r >= cap) continue;
+          k = r;
+        }
+
+        offsets[k * 3 + 0] = x;
+        offsets[k * 3 + 1] = y;
+        offsets[k * 3 + 2] = 0;
+        angles[k] = Math.random() * Math.PI;
       }
     }
+
+    const numVisible = Math.min(filled, cap);
+
+// pindex делаем 0..numVisible-1 (стабильно)
+    const indices = new Float32Array(numVisible);
+    for (let i = 0; i < numVisible; i++) indices[i] = i;
 
     geometry.setAttribute('pindex', new THREE.InstancedBufferAttribute(indices, 1, false));
     geometry.setAttribute('offset', new THREE.InstancedBufferAttribute(offsets, 3, false));
@@ -588,6 +624,8 @@ class Particles {
 
     this.object3D = new THREE.Mesh(geometry, material);
     this.container.add(this.object3D);
+
+
   }
 
 
@@ -680,10 +718,29 @@ class Particles {
 
   resize() {
     if (!this.object3D || !this.hitArea) return;
-    const scale = this.webgl.fovHeight / this.height;
+
+    const fovH = this.webgl.fovHeight;
+    const fovW = fovH * this.webgl.camera.aspect;
+
+    const b = this.contentBounds;
+    const bw = Math.max(1, b.maxX - b.minX);
+    const bh = Math.max(1, b.maxY - b.minY);
+
+    // contain: влезть целиком, без обрезки
+    // 0.95 даёт небольшой “воздух”
+    const scale = 0.95 * Math.min(fovW / bw, fovH / bh);
+
     this.object3D.scale.set(scale, scale, 1);
     this.hitArea.scale.set(scale, scale, 1);
+
+    // центр силуэта в координатах "пиксели картинки"
+    const cx = (b.minX + b.maxX) * 0.5 - this.width * 0.5;
+    const cy = (b.minY + b.maxY) * 0.5 - this.height * 0.5;
+
+    // сдвигаем контейнер в мировых единицах (учитываем scale)
+    this.container.position.set(-cx * scale, -cy * scale, 0);
   }
+
 
   private onInteractiveMove(e: InteractiveEvents['interactive-move']) {
     const uv = (e.intersectionData.uv as THREE.Vector2) || null;
