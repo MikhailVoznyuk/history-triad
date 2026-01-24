@@ -435,36 +435,46 @@ class Particles {
   touch: TouchTexture | null = null;
 
   private handlerInteractiveMove!: (e: InteractiveEvents['interactive-move']) => void;
+  private loadId = 0;
 
   constructor(webgl: WebGLView) {
     this.webgl = webgl;
   }
 
   init(src: string) {
+    const id = ++this.loadId;
+
     const loader = new THREE.TextureLoader();
     loader.load(
-      src,
-      (texture) => {
-        this.texture = texture;
-        this.texture.minFilter = THREE.LinearFilter;
-        this.texture.magFilter = THREE.LinearFilter;
+        src,
+        (texture) => {
+          // если уже запросили другой портрет, этот результат выкидываем
+          if (id !== this.loadId) {
+            texture.dispose();
+            return;
+          }
 
-        this.width = (texture.image as any).width;
-        this.height = (texture.image as any).height;
+          // на всякий случай: убираем предыдущее
+          this.destroy();
 
-        this.initPoints(true);
-        this.initHitArea();
-        this.initTouch();
-        this.resize();
-        this.show();
-      },
-      undefined,
-      (err) => {
-        // eslint-disable-next-line no-console
-        console.error('[InteractiveParticles] texture load failed:', src, err);
-      }
+          this.texture = texture;
+          this.texture.minFilter = THREE.LinearFilter;
+          this.texture.magFilter = THREE.LinearFilter;
+
+          this.width = (texture.image as any).width;
+          this.height = (texture.image as any).height;
+
+          this.initPoints(true);
+          this.initHitArea();
+          this.initTouch();
+          this.resize();
+          this.show();
+        },
+        undefined,
+        (err) => console.error('[InteractiveParticles] texture load failed:', src, err)
     );
   }
+
 
   private initPoints(discard: boolean) {
     const maxSide = 700;     // меньше = легче
@@ -659,6 +669,13 @@ class Particles {
       (this.hitArea.material as THREE.Material).dispose();
       this.hitArea = null;
     }
+
+    if (this.texture) {
+      this.texture.dispose();
+      // @ts-ignore
+      this.texture = null;
+    }
+
   }
 
   resize() {
@@ -796,9 +813,10 @@ class WebGLView {
   particles!: Particles;
 
   fovHeight = 1;
+  currSample: number | null = null;
 
   private images: string[];
-  currSample: number | null = null;
+  private chain = Promise.resolve();
 
   constructor(containerEl: HTMLDivElement, images: string[]) {
     this.containerEl = containerEl;
@@ -814,9 +832,6 @@ class WebGLView {
     this.scene.add(this.particles.container);
 
     this.interactive = new InteractiveControls(this.camera, this.renderer.domElement);
-
-    const rnd = Math.floor(Math.random() * this.images.length);
-    this.goto(rnd);
   }
 
   update() {
@@ -829,11 +844,17 @@ class WebGLView {
   }
 
   goto(index: number) {
-    if (this.currSample == null) this.particles.init(this.images[index]);
-    else {
-      this.particles.hide(true).then(() => this.particles.init(this.images[index]));
-    }
+    if (index === this.currSample) return;
+
     this.currSample = index;
+
+    this.chain = this.chain.then(() => {
+      if (!this.particles.object3D) {
+        this.particles.init(this.images[index]);
+        return;
+      }
+      return this.particles.hide(true).then(() => this.particles.init(this.images[index]));
+    });
   }
 
   next() {
@@ -985,7 +1006,16 @@ export function InteractiveParticles({ images, startIndex, clickToNext = true, c
       if (cancelled) return;
       const ControlKitClass = (mod as any).default || (mod as any);
 
-      appRef.current = new App(el, images, null, clickToNext, ControlKitClass);
+      const app = new App(el, images, null, clickToNext, ControlKitClass);
+      appRef.current = app;
+
+      if (startIndex != null) {
+        const idx = Math.max(0, Math.min(images.length - 1, startIndex));
+        app.webgl.goto(idx);
+      }
+
+      if (active === false) app.stop();
+      else app.start();
     })();
 
     return () => {
