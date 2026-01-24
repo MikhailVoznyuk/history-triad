@@ -26,18 +26,21 @@ export default function Home() {
     const PERSON_HEADERS = useMemo<Array<PersonData>>(() => [
         {fullName: 'Григорий Григорьевич Елисеев', description: 'Описание'},
         {fullName: 'Николай Михайлович Мартьянов', description: 'Описание'},
-        {fullName: 'Митрофан Варламович Лагидзе', description: 'Описание'}
+        {fullName: 'Митрофан Варламович Лагидзе', description: 'Изобретатель и предприниматель, сумевший превратить личную идею в новую культуру вкуса. Ученик аптекаря, он выбрал путь натуральных компонентов и настойчивых экспериментов, создавая сиропы из ягод, фруктов и трав родной Грузии. Его подход изменил представление о безалкогольных напитках: лимонад из ремесленного опыта стал массовым явлением, а имя Лагидзе закрепилось как знак качества, который пытались повторять и подделывать.'}
     ], [])
     return (
-        <div className="flex min-h-screen items-center justify-center bg-black font-sans dark:bg-black">
+        <div className="flex min-h-screen items-center justify-center bg-black font-sans ">
             <main className='text-white'>
                 <MovingBackground images={BACKGROUND_URLS} idx={person.idx}/>
-                <Header />
-                <PersonHero
-                    curIdx={person.idx}
-                    images={PORTRAITS}
-                    headers={PERSON_HEADERS}
-                />
+                <div className="relative z-1">
+                    <Header />
+                    <PersonHero
+                        curIdx={person.idx}
+                        images={PORTRAITS}
+                        headers={PERSON_HEADERS}
+                    />
+                </div>
+
 
             </main>
         </div>

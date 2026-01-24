@@ -7,7 +7,7 @@ type MovingBackgroundProps = {
 }
 export function MovingBackground({images, idx}: MovingBackgroundProps) {
     return (
-        <div className="fixed top-0 left-0 -z-0 inset-0 overflow-hidden">
+        <div className="fixed top-0 left-0 z-0 inset-0 overflow-hidden">
             <AnimatePresence initial={false}>
                 <motion.div
                     key={idx}
