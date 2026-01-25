@@ -1,6 +1,6 @@
 import {useMemo} from "react";
 import InteractiveParticles from "@/widgets/person-hero/ui/InteractiveParticles";
-import {Title, TextBlock} from "@/shared/ui/text-blocks";
+import {TextSection} from "@/widgets/text-section";
 
 
 export type PersonData = {
@@ -18,12 +18,15 @@ export function PersonHero({curIdx, headers, images}: PersonHeroProps) {
     const IMAGES = useMemo(() => images, [images])
 
     return (
-        <div className="relative h-screen inset-0 flex justify-between p-12">
-            <div className="relative flex flex-col gap-3 text-cloud font-cormorant">
-                <Title title={(curIdx !== -1) ? headers[curIdx].fullName : ''} />
-                <TextBlock text={curIdx !== -1 ? headers[curIdx].description : ''} />
+        <div className="relative h-screen inset-0 flex justify-between">
+            <div className="relative top-[18%] w-1/2 flex flex-col gap-3 text-cloud font-cormorant">
+                <TextSection
+                    title={(curIdx !== -1) ? headers[curIdx].fullName : ''}
+                    text={curIdx !== -1 ? headers[curIdx].description : ''}
+                    containerClassName="gap-4"
+                />
             </div>
-            <div className="relative h-full py-2 w-[800px]">
+            <div className="relative h-full py-[5vh] w-[800px]">
                 <InteractiveParticles
                     className="h-full w-full"
                     images={IMAGES}

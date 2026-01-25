@@ -5,8 +5,8 @@ import {useMemo} from "react";
 import Header from "@/widgets/header";
 import {MovingBackground} from "@/shared/ui/background";
 import {useSelectPerson} from "@/features/select-person";
-import {InteractiveParticles} from "@/widgets/person-hero/ui/InteractiveParticles";
 import {PersonHero} from "@/widgets/person-hero/ui/PersonHero";
+import {TextImageSection} from "@/widgets/text-image-section";
 import type {PersonData} from "@/widgets/person-hero/ui/PersonHero";
 
 const BACKGROUND_URLS = [
@@ -30,18 +30,45 @@ export default function Home() {
     ], [])
     return (
         <div className="flex min-h-screen items-center justify-center bg-black font-sans ">
-            <main className='text-white'>
+            <main className='w-full font-cormorant text-cloud'>
                 <MovingBackground images={BACKGROUND_URLS} idx={person.idx}/>
                 <div className="relative z-1">
                     <Header />
-                    <PersonHero
-                        curIdx={person.idx}
-                        images={PORTRAITS}
-                        headers={PERSON_HEADERS}
-                    />
+                    <div className="px-12 mt-12 flex flex-col gap-32">
+                        <PersonHero
+                            curIdx={person.idx}
+                            images={PORTRAITS}
+                            headers={PERSON_HEADERS}
+                        />
+                        <TextImageSection
+                            title="Пример блоков с картинками"
+                            blocks={[
+                                {
+                                    id: "0",
+                                    title: PERSON_HEADERS[2].fullName,
+                                    text: PERSON_HEADERS[2].description,
+                                    imgSrc: "/backgrounds/background1.jpg",
+                                    imgEffect: "sepia",
+                                },
+                                {
+                                    id: "1",
+                                    title: PERSON_HEADERS[2].fullName,
+                                    text: PERSON_HEADERS[2].description,
+                                    imgSrc: "/backgrounds/background1.jpg",
+                                    imgEffect: "sepia",
+                                },
+                                {
+                                    id: "2",
+                                    title: PERSON_HEADERS[2].fullName,
+                                    text: PERSON_HEADERS[2].description,
+                                    imgSrc: "/backgrounds/background1.jpg",
+                                    imgEffect: "sepia",
+                                }
+                            ]}
+                        />
+                    </div>
+
                 </div>
-
-
             </main>
         </div>
     );

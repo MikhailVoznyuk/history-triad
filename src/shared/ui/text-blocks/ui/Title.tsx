@@ -1,3 +1,4 @@
+import {twMerge} from "tailwind-merge";
 import {GradientLine} from "@/shared/ui/particles";
 
 type TitleProps = {
@@ -5,14 +6,23 @@ type TitleProps = {
     titleClassName?: string,
     containerClassName?: string,
     lineNeeded?: boolean
+    isCentered?: boolean
 }
 
-export function Title({title, titleClassName='', containerClassName='',  lineNeeded=true}: TitleProps) {
+export function Title({title, titleClassName='', containerClassName='',  lineNeeded=true, isCentered=false}: TitleProps) {
     return (
-        <div className={`flex flex-col gap-3 ${containerClassName}`}>
-            <h2 className={`font-cormorant text-cloud  text-3xl font-semibold ${titleClassName}`}>{title}</h2>
+        <div className={twMerge(
+            'flex flex-col gap-1 w-fit',
+            containerClassName
+        )}
+        >
+            <h2 className={twMerge(
+                'font-cormorant text-cloud  text-3xl font-semibold',
+                titleClassName
+            )}>{title}</h2>
             {lineNeeded && (
-                <GradientLine />
+
+                <GradientLine isCentered={isCentered}/>
             )}
         </div>
     )

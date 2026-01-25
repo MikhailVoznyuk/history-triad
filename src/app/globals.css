@@ -2,6 +2,7 @@
 
 @theme {
   --color-cloud: #D9D9D9;
+  --color-gold: #E7C765;
 }
 :root {
   --background: #ffffff;
@@ -18,12 +19,10 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-
   }
 }
 
 body {
-
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
