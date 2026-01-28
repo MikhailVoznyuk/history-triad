@@ -7,6 +7,8 @@ import {MovingBackground} from "@/shared/ui/background";
 import {useSelectPerson} from "@/features/select-person";
 import {PersonHero} from "@/widgets/person-hero/ui/PersonHero";
 import {TextImageSection} from "@/widgets/text-image-section";
+import {VerticalTimeLine} from "@/widgets/timeline/ui/VerticalTimeLine";
+import {TIMELINE} from "@/widgets/timeline/model/data";
 import type {PersonData} from "@/widgets/person-hero/ui/PersonHero";
 
 const BACKGROUND_URLS = [
@@ -66,6 +68,11 @@ export default function Home() {
                                 }
                             ]}
                         />
+                        <VerticalTimeLine
+                            title="Хронология событый"
+                            items={TIMELINE}
+                        />
+
                     </div>
 
                 </div>

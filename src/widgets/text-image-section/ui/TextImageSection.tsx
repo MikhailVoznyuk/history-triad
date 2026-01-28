@@ -39,9 +39,8 @@ function TextImageBlock(props: TextImageBlockProps) {
                 effectNeeded
                 sepiaNeeded={props.imgEffect === "sepia"}
                 invertNeeded={props.imgEffect === "invert"}
-                shadowBorderNeeded
+                shadowBorder={[40, 20]}
             />
-
         </div>
     )
 }
