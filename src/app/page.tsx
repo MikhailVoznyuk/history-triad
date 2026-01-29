@@ -8,6 +8,7 @@ import {useSelectPerson} from "@/features/select-person";
 import {PersonHero} from "@/widgets/person-hero/ui/PersonHero";
 import {TextImageSection} from "@/widgets/text-image-section";
 import {VerticalTimeLine} from "@/widgets/timeline/ui/VerticalTimeLine";
+import {Gallery} from "@/widgets/gallery";
 import {TIMELINE} from "@/widgets/timeline/model/data";
 import type {PersonData} from "@/widgets/person-hero/ui/PersonHero";
 
@@ -71,6 +72,15 @@ export default function Home() {
                         <VerticalTimeLine
                             title="Хронология событый"
                             items={TIMELINE}
+                        />
+                        <Gallery
+                            title="Галлерея"
+                            items={[
+                                {id: "i0", src: "backgrounds/background1.jpg", caption: "Фото номер 1"},
+                                {id: "i1", src: "backgrounds/background2.jpg", caption: "Фото номер 2"},
+                                {id: "i2", src: "backgrounds/background3.jpg", caption: "Фото номер 3"},
+                                {id: "i3", src: "backgrounds/background2.jpg", caption: "Фото номер 4"}
+                            ]}
                         />
 
                     </div>
