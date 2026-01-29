@@ -4,6 +4,7 @@ import {animate} from "animejs";
 import {twMerge} from "tailwind-merge";
 import {Title} from "@/shared/ui/text-blocks";
 import {TimelineBlock} from "@/widgets/timeline/ui/TimeLineBlock";
+import {TimelineMark} from "@/widgets/timeline/ui/TimeLineMark";
 import styles from "./verticalTimeline.module.css"
 import type {TimeLineItem} from "@/widgets/timeline/model/types";
 
@@ -80,19 +81,9 @@ export function VerticalTimeLine({title, items, className=''}: Props) {
                         <div className="relative size-full">
                             {items.map((item, idx) => {
                                 console.log(active)
-                                const top = `calc(${idx * 50}vh + ${290 * idx}px + ${290 / 2}px)`
+                                const top = `calc(${idx * 50}vh + ${290 * idx}px + ${290 / 2}px - ${20}px)`
                                 return (
-                                    <div key={item.id} className="absolute left-0 flex gap-4 items-center" style={
-                                        {
-                                            top,
-                                            opacity: (idx <= active) ? 1 : 0,
-                                            transition: '0.3s ease-in-out',
-                                        }}
-                                    >
-                                        <div className="rounded-full size-8 bg-cloud ">
-                                        </div>
-                                        <Title titleClassName="font-cormorant text-5xl font-bold mb-1" isCentered={true}>{item.year}</Title>
-                                    </div>
+                                    <TimelineMark key={item.id} year={item.year} top={top} />
                                 )
                             })}
 

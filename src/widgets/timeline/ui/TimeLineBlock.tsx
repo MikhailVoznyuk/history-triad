@@ -21,7 +21,6 @@ export function TimelineBlock({item, idx, activeIdx, onActive}: TimeLineProps) {
 
     useEffect(() => {
         if (inView) onActive(idx);
-        console.log('useEffect Block fires', inView, activeIdx, idx);
     }, [inView, idx, onActive]);
     return (
         <div className={`w-[500px] ${opened ? "h-fit" : "h-[290px]"} flex flex-col gap-4 font-cormorant p-4 shadow-md rounded-md`}
