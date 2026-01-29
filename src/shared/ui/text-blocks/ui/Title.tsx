@@ -7,11 +7,21 @@ type TitleProps = {
     children?: React.ReactNode,
     titleClassName?: string,
     containerClassName?: string,
+    lineColor?: string,
     lineNeeded?: boolean
     isCentered?: boolean
 }
 
-export function Title({title, titleClassName='', containerClassName='',  lineNeeded=true, isCentered=false, children}: TitleProps) {
+export function Title(
+    {
+        title,
+        titleClassName='',
+        containerClassName='',
+        lineNeeded=true,
+        isCentered=false,
+        lineColor,
+        children
+    }: TitleProps) {
     return (
         <div className={twMerge(
             'flex flex-col gap-1 w-fit',
@@ -24,7 +34,7 @@ export function Title({title, titleClassName='', containerClassName='',  lineNee
             )}>{title || children}</h2>
             {lineNeeded && (
 
-                <GradientLine isCentered={isCentered}/>
+                <GradientLine isCentered={isCentered} color={lineColor}/>
             )}
         </div>
     )

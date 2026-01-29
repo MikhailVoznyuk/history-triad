@@ -3,6 +3,12 @@
 @theme {
   --color-cloud: #D9D9D9;
   --color-gold: #E7C765;
+  --color-graphite: #4B4848;
+  --mask-fade-inset-1: 90%;
+  --mask-fade-inset-2: 85%;
+  --mask-fade-inset-3: 80%;
+  --mask-fade-inset-4: 75%;
+  --mask-fade-inset-5: 70%;
 }
 :root {
   --background: #ffffff;
@@ -16,6 +22,69 @@
   --font-mono: var(--font-geist-mono);
   --font-cormorant: var(--font-cormorant);
 }
+
+@utility mask-fade-y {
+  -webkit-mask-image: -webkit-linear-gradient(to bottom,
+  transparent 0%,
+  #000 10%,
+  #000 90%,
+  transparent 100%
+  );
+
+  mask-image: linear-gradient(to bottom,
+  transparent 0%,
+  #000 10%,
+  #000 90%,
+  transparent 100%
+  );
+
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+@utility mask-fade-bottom-*  {
+  -webkit-mask-image: -webkit-linear-gradient(to bottom,
+  #000 0%,
+  #000 --value(--mask-fade-inset-*),
+  transparent 100%
+  );
+
+  mask-image: linear-gradient(to bottom,
+  #000 0%,
+  #000 --value(--mask-fade-inset-*),
+  transparent 100%
+  );
+
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+@utility mask-fade-top  {
+  -webkit-mask-image: -webkit-linear-gradient(to bottom,
+  #000 0%,
+  #000 90%,
+  transparent 100%
+  );
+
+  mask-image: linear-gradient(to bottom,
+  transparent 0%,
+  #000 10%,
+  #000 100%,
+  );
+
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
 
 @media (prefers-color-scheme: dark) {
   :root {

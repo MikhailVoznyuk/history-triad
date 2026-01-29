@@ -1,6 +1,7 @@
-import {useRef, useEffect, useState} from "react";
+import {useState, useRef, useEffect} from "react";
 import {useInView} from "framer-motion";
 import {Title, TextBlock} from "@/shared/ui/text-blocks";
+import {ArrowButton} from "@/shared/ui/buttons";
 import type {TimeLineItem} from "@/widgets/timeline/model/types";
 
 export type TimeLineProps = {
@@ -11,16 +12,19 @@ export type TimeLineProps = {
 }
 
 export function TimelineBlock({item, idx, activeIdx, onActive}: TimeLineProps) {
+    const [opened, setOpened] = useState<boolean>(false);
+
     const ref = useRef<HTMLDivElement | null>(null);
-    const inView = useInView(ref, {margin: "-40% 0% -45% 0%", amount: 0.1});
+    const inView = useInView(ref, {margin: "0% 0% 0% 0%", amount: "all"}); //{margin: "-30% 0% -45% 0%", amount: 0.5})
+
+    const isTextCropped = item.text.length > 198;
+
     useEffect(() => {
-
-
         if (inView) onActive(idx);
         console.log('useEffect Block fires', inView, activeIdx, idx);
     }, [inView, idx, onActive]);
     return (
-        <div className="w-48 h-fit flex flex-col gap-3 font-cormorant p-4 shadow-md rounded-md "
+        <div className={`w-[500px] ${opened ? "h-fit" : "h-[290px]"} flex flex-col gap-4 font-cormorant p-4 shadow-md rounded-md`}
              ref={ref}
              style={{
                  opacity: `${idx > activeIdx ? 0 : 1} `,
@@ -30,8 +34,21 @@ export function TimelineBlock({item, idx, activeIdx, onActive}: TimeLineProps) {
                  border: '1px solid rgba(211, 211, 211, 0.7)'
              }}
         >
-            <Title titleClassName="text-">{item.title}</Title>
-            <TextBlock>{item.text}</TextBlock>
+            <div
+                className={`${opened ? '' : 'h-48'} flex flex-col gap-3 ${opened ? '' : 'mask-fade-bottom-3'} overflow-hidden`}
+                style={{
+                    transition: "0.3s ease-in-out"
+                }}
+            >
+                <Title titleClassName="text-2xl text-gold" lineColor={'#D9D9D9'}>{item.title}</Title>
+                <TextBlock className="text-lg">{item.text}</TextBlock>
+            </div>
+            {isTextCropped && (
+                <div className="flex w-full justify-end">
+                    <ArrowButton onClick={() => setOpened(!opened)} dir="bottom" rotateOnClick/>
+                </div>
+            )}
+
         </div>
     )
 }
