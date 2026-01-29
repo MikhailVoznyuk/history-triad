@@ -1,5 +1,5 @@
 import {useState, useRef, useEffect} from "react";
-import {useScroll, useMotionValueEvent} from "framer-motion";
+import {useScroll, useMotionValueEvent, useTransform} from "framer-motion";
 import {animate} from "animejs";
 import {twMerge} from "tailwind-merge";
 import {Title} from "@/shared/ui/text-blocks";
@@ -27,13 +27,14 @@ export function VerticalTimeLine({title, items, className=''}: Props) {
         }
     )
 
+    const timelineProgress = useTransform(scrollYProgress, (p) => p * 100);
+
     useMotionValueEvent(
         scrollYProgress,
         "change",
         (p) => {
             const el = wrapRef.current;
             if (!el) return;
-            console.log(p);
             el.style.setProperty("--tl-p", `${p * 100}%`);
         }
     )
@@ -52,7 +53,7 @@ export function VerticalTimeLine({title, items, className=''}: Props) {
     }, [active]);
 
     return (
-        <section className={twMerge("flex flex-col items-center gap-24", className)}>
+        <section className={twMerge("flex flex-col items-center gap-24 my-32", className)}>
             {title && <Title isCentered={true}>{title}</Title>}
             <div ref={wrapRef} className="relative w-screen max-w-[1200px] mx-auto flex justify-center gap-24 px-6">
                 <div className="flex flex-col gap-[50vh] w-fit">
@@ -68,7 +69,7 @@ export function VerticalTimeLine({title, items, className=''}: Props) {
                 </div>
                 <div className={`relative w-8 flex justify-center`}>
                     <div className={`sticky h-screen w-2 top-0 py-10`}>
-                        <div className="relative h-full w-full  mask-fade-y">
+                        <div className="relative h-full w-full rounded-xl mask-fade-y">
 
                             <div className="absolute rounded-xl bg-cloud w-full h-full top-0" />
                             <div className="absolute rounded-xl bg-gold w-full top-0 mask-fade-bottom-1"
@@ -83,7 +84,7 @@ export function VerticalTimeLine({title, items, className=''}: Props) {
                                 console.log(active)
                                 const top = `calc(${idx * 50}vh + ${290 * idx}px + ${290 / 2}px - ${20}px)`
                                 return (
-                                    <TimelineMark key={item.id} year={item.year} top={top} />
+                                    <TimelineMark key={`m-${item.id}`} tp={timelineProgress} top={top} year={item.year} />
                                 )
                             })}
 
