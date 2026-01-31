@@ -81,7 +81,6 @@ export function VerticalTimeLine({title, items, className=''}: Props) {
                     <div className="absolute left-0 top-0 h-screen w-full">
                         <div className="relative size-full">
                             {items.map((item, idx) => {
-                                console.log(active)
                                 const top = `calc(${idx * 50}vh + ${290 * idx}px + ${290 / 2}px - ${20}px)`
                                 return (
                                     <TimelineMark key={`m-${item.id}`} tp={timelineProgress} top={top} year={item.year} />

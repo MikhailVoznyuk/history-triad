@@ -13,7 +13,7 @@ export function ArrowButton({onClick, dir, rotateOnClick, className=''}: Seconda
         top: -90,
         bottom: 90,
         right: 0,
-        left: -90
+        left: -180
     }), []);
     const [angle, setAngle] = useState(anglesHash[dir]);
 

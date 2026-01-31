@@ -76,10 +76,10 @@ export default function Home() {
                         <Gallery
                             title="Галлерея"
                             items={[
-                                {id: "i0", src: "backgrounds/background1.jpg", caption: "Фото номер 1"},
-                                {id: "i1", src: "backgrounds/background2.jpg", caption: "Фото номер 2"},
-                                {id: "i2", src: "backgrounds/background3.jpg", caption: "Фото номер 3"},
-                                {id: "i3", src: "backgrounds/background2.jpg", caption: "Фото номер 4"}
+                                {id: "i0", src: "/backgrounds/background1.jpg", caption: "Фото номер 1"},
+                                {id: "i1", src: "/backgrounds/background2.jpg", caption: "Фото номер 2"},
+                                {id: "i2", src: "/backgrounds/background3.jpg", caption: "Фото номер 3"},
+                                {id: "i3", src: "/backgrounds/background2.jpg", caption: "Фото номер 4"}
                             ]}
                         />
 

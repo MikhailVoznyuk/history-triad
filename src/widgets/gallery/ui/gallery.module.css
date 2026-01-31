@@ -1,0 +1,25 @@
+.maskFade{
+    -webkit-mask-image: -webkit-linear-gradient(to right,
+    transparent 0%,
+    transparent 10%,
+    #000 20%,
+    #000 80%,
+    transparent 90%,
+    transparent 100%
+    );
+
+    mask-image: linear-gradient(to right,
+    transparent 0%,
+    transparent 4%,
+    #000 20%,
+    #000 80%,
+    transparent 96%,
+    transparent 100%
+    );
+
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+}
