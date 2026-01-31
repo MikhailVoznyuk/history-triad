@@ -32,12 +32,12 @@ export default function Home() {
         {fullName: 'Митрофан Варламович Лагидзе', description: 'Изобретатель и предприниматель, сумевший превратить личную идею в новую культуру вкуса. Ученик аптекаря, он выбрал путь натуральных компонентов и настойчивых экспериментов, создавая сиропы из ягод, фруктов и трав родной Грузии. Его подход изменил представление о безалкогольных напитках: лимонад из ремесленного опыта стал массовым явлением, а имя Лагидзе закрепилось как знак качества, который пытались повторять и подделывать.'}
     ], [])
     return (
-        <div className="flex min-h-screen items-center justify-center bg-black font-sans ">
+        <div className="flex min-h-screen w-screen items-center justify-center bg-black font-sans ">
             <main className='w-full font-cormorant text-cloud'>
                 <MovingBackground images={BACKGROUND_URLS} idx={person.idx}/>
                 <div className="relative z-1">
                     <Header />
-                    <div className="px-12 mt-12 flex flex-col gap-32">
+                    <div className="px-2 md:px-12 mt-12 flex flex-col gap-32">
                         <PersonHero
                             curIdx={person.idx}
                             images={PORTRAITS}

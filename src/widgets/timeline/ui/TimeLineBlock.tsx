@@ -9,9 +9,10 @@ export type TimeLineProps = {
     idx: number;
     activeIdx: number;
     onActive: (idx: number) => void;
+    observe?: boolean;
 }
 
-export function TimelineBlock({item, idx, activeIdx, onActive}: TimeLineProps) {
+export function TimelineBlock({item, idx, activeIdx, onActive, observe=true}: TimeLineProps) {
     const [opened, setOpened] = useState<boolean>(false);
 
     const ref = useRef<HTMLDivElement | null>(null);
@@ -20,11 +21,12 @@ export function TimelineBlock({item, idx, activeIdx, onActive}: TimeLineProps) {
     const isTextCropped = item.text.length > 198;
 
     useEffect(() => {
+        if (!observe) return;
         if (inView) onActive(idx);
-    }, [inView, idx, onActive]);
+    }, [observe, inView, idx, onActive]);
     return (
-        <div className={`relative h-[290px] w-fit`}>
-            <div className={`w-[500px] ${opened ? "h-fit" : "h-[290px]"} flex flex-col gap-4 font-cormorant p-4 shadow-md rounded-md`}
+        <div className={`relative h-[260px] sm:h-[290px] w-fit`}>
+            <div className={`w-[280px] sm:w-[500px] ${opened ? "h-fit" : "h-[260px] sm:h-[290px]"} flex flex-col gap-4 font-cormorant p-4 shadow-md rounded-md`}
                  ref={ref}
                  style={{
                      opacity: `${idx > activeIdx ? 0 : 1} `,
@@ -35,13 +37,13 @@ export function TimelineBlock({item, idx, activeIdx, onActive}: TimeLineProps) {
                  }}
             >
                 <div
-                    className={`${opened ? '' : 'h-48'} flex flex-col gap-3 ${opened ? '' : 'mask-fade-bottom-3'} overflow-hidden`}
+                    className={`${opened ? '' : 'h-40 sm:h-48'} flex flex-col gap-3 ${opened ? '' : 'mask-fade-bottom-3'} overflow-hidden`}
                     style={{
                         transition: "0.3s ease-in-out"
                     }}
                 >
-                    <Title titleClassName="text-2xl text-gold" lineColor={'#D9D9D9'}>{item.title}</Title>
-                    <TextBlock className="text-lg">{item.text}</TextBlock>
+                    <Title titleClassName="text-xl sm:text-2xl text-gold" lineColor={'#D9D9D9'}>{item.title}</Title>
+                    <TextBlock className={`text-base max-h-96 sm:max-h-none sm:text-lg ${opened ? "overflow-scroll" : "sm:overflow-auto"}`}>{item.text}</TextBlock>
                 </div>
                 {isTextCropped && (
                     <div className="flex w-full justify-end">

@@ -29,21 +29,14 @@ const getSize = (w: number) => {
     return "sm";
 }
 
-const getInitInd = (el: HTMLDivElement | null) => {
-    if (!el) return 0;
-    const rect = el.getBoundingClientRect();
-    const w = getSize(rect.width);
-    return (w === "lg" ? 1 : 0);
-}
+
 
 
 export function Gallery({items, title}: GalleryItemProps) {
-
-
     const [ind, setInd] = useState<number>(0);
     const [scSize, setScSize] = useState<string>("sm");
+    const [openId, setOpenId] = useState<string | null>(null);
 
-    const [wrapWidth, setWrapWidth] = useState<number>(0);
     const raf = useRef<number | null>(null);
     const wrapRef = useRef<HTMLDivElement | null>(null);
 
@@ -51,17 +44,9 @@ export function Gallery({items, title}: GalleryItemProps) {
     const goPrev = () => setInd(clamp(ind - 1, items.length));
 
     useEffect( () => {
-        const updateWrapWidth = () => {
-            const el = wrapRef.current;
-            if (!el) return;
-            const rect = el.getBoundingClientRect();
-            setWrapWidth(rect.width);
-        }
-
         const calcWidth = () => {
             raf.current = null;
             setScSize(getSize(window.innerWidth));
-            updateWrapWidth();
         }
 
         const onResize = () => {
@@ -79,83 +64,164 @@ export function Gallery({items, title}: GalleryItemProps) {
     }, []);
 
     useEffect(() => {
-
-
     }, [scSize]);
+
+    const active = items[ind];
+    const opened = (openId) ? items.find(x => x.id === openId) : null;
 
     const blockWidth: number[] = (scSize === "sm")
         ? [320, 320]
         : [400, 360];
 
-    const start = (scSize === "sm")
-        ? 0
-        : 400;
 
     const step = blockWidth[0];
+    const gap = 30;
+    const start = (scSize === "sm")
+        ? 0
+        : step;
 
     const transX = (scSize === "sm") ?
-        step * ind :
+        (-step - gap) * ind  :
         (ind == 0) ?
         start :
         -(step * (ind - 1));
 
+    const lid = (id: string) => `gallery-img-${id}`
+
     return (
+        <LayoutGroup id="gallery">
         <section className="flex flex-col items-center gap-8 w-full"
 
         >
             {title && <Title isCentered={true}>{title}</Title>}
-            <div className="relative "
-                 style={{
-                     width: scSize !== "sm" ? "1200px" : "320px"
-                 }}
 
-            >
-                <div className={`relative overflow-hidden ${(scSize != "sm") ? styles.maskFade : ""}`}
+                <div className="relative"
+                     style={{
+                         width: scSize !== "sm" ? "1200px" : "320px"
+                     }}
 
                 >
-                    <motion.div
-                        className={`inset-0 relative flex items-center`}
-                        animate={{x: transX}}
-                        transition={{ type: "tween", duration: 0.45 }}
-                        ref={wrapRef}
-                    >
-                        {items.map((item: GalleryItem, i) => {
-                            const scale = `scale(${(scSize === 'sm' || ind === i) ? 1 : 0.8})`;
+                    <div className={`relative overflow-hidden ${(scSize != "sm") ? styles.maskFade : ""}`}
 
-                            return (
-                                <div key={item.id} style={
-                                    {
-                                        transform: scale,
-                                        transformOrigin: "50% 50%",
-                                        transition: "0.3s ease"
-                                    }
-                                }>
+                    >
+                        <motion.div
+                            className={`inset-0 relative flex items-center`}
+                            animate={{x: transX}}
+                            transition={{ type: "tween", duration: 0.45 }}
+                            style={(scSize === "sm") ? {gap} : {}}
+                            ref={wrapRef}
+                        >
+                            {items.map((item: GalleryItem, i) => {
+                                const scale = (scSize === 'sm' || ind === i) ? 1 : 0.8;
+                                const isActive = (scSize == "sm") || (i === ind);
+                                return (
+                                    <motion.div
+                                        key={item.id}
+                                        layoutId = {lid(item.id)}
+                                        animate={{
+                                            scale
+                                        }}
+                                        transition={{
+                                            duration: 0.3,
+                                            ease: "easeOut"
+                                        }}
+                                        style={
+                                        {
+                                            transformOrigin: "50% 50%",
+                                            position: "relative",
+                                            pointerEvents: `${isActive ? "auto" : "none"}`,
+                                            cursor: `${isActive ? "zoom-in" : "default"}`
+                                        }}
+                                         onClick={() => isActive && setOpenId(item.id)}
+                                         className="relative"
+                                    >
+                                        <FilmImage
+                                            imgSrc={item.src}
+                                            alt={""}
+                                            fill
+                                            containerClassName="aspect-[16/9]"
+                                            containerStyle={{
+                                                width: `${blockWidth[0]}px`,
+                                                transition: "0.3s ease"
+                                            }}
+                                            effectNeeded
+                                            shadowBorder={[10, 2]}
+                                            sizes={`${blockWidth[0]}px`}
+                                        />
+                                    </motion.div>
+                                )}
+                            )
+                            }
+
+                        </motion.div>
+
+                    </div>
+                    <ArrowButton
+                        onClick={goPrev}
+                        dir="left"
+                        wrapperStyle={{
+                            top: "50%",
+                            left: "0",
+                            transform: "translate(-50%, -50%)"
+                        }}
+                        wrapperClassName="absolute"
+                    />
+                    <ArrowButton
+                        onClick={goNext}
+                        dir="right"
+                        wrapperStyle={{
+                            top: "50%",
+                            left: "100%",
+                            transform: "translate(-50%, -50%)"
+                        }}
+                        wrapperClassName="absolute"
+                    />
+
+                </div>
+                <AnimatePresence >
+                    {opened && openId && active &&  (
+                        <motion.div
+                            className="fixed inset-0 z-[9999]"
+                            initial={{opacity: 0}}
+                            animate={{opacity: 1}}
+                            exit={{ opacity: 0 }}
+                        >
+                            <motion.div
+                                className="absolute inset-0 bg-black/80"
+                                onClick={() => setOpenId(null)}
+                                initial={{opacity: 0}}
+                                animate={{opacity: 1}}
+                                exit={{ opacity: 0 }}
+
+                            >
+
+                                <div className="relative z-10 w-full h-full flex justify-center items-center p-4 sm-p-8">
+                                <motion.div
+                                    layoutId={lid(active.id)}
+                                    className="relative w-full max-w-[1200px] aspect-[16/9]"
+                                    style={{cursor: "zoom-out"}}
+                                    onClick={() => setOpenId(null)}
+                                >
                                     <FilmImage
-                                        imgSrc={item.src}
-                                        alt={""}
+                                        imgSrc={opened.src}
+                                        alt=""
                                         fill
                                         containerClassName="aspect-[16/9]"
-                                        containerStyle={{
-                                            width: `${blockWidth[0]}px`,
-                                            transition: "0.3s ease"
-                                        }}
-                                        sizes={`${blockWidth[0]}px`}
-                                    />
-                                </div>
-                            )}
-                        )
-                    }
+                                        containerStyle={{width: "100%"}}
 
-                    </motion.div>
-                </div>
-                <div
-                    className="absolute w-full flex justify-between"
-                    style={{top: 'calc(50% - 20px)'}}
-                >
-                    <ArrowButton onClick={goPrev} dir="left"  />
-                    <ArrowButton onClick={goNext} dir="right" />
-                </div>
-            </div>
-        </section>
+                                        shadowBorder={[20, 10]}
+                                        sizes="(max-width: 768px) 100vw, 1200px"
+                                    />
+
+                                </motion.div>
+                            </div>
+                            </motion.div>
+
+
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </section>
+        </LayoutGroup>
     )
 }
