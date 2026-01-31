@@ -18,15 +18,15 @@ export function PersonHero({curIdx, headers, images}: PersonHeroProps) {
     const IMAGES = useMemo(() => images, [images])
 
     return (
-        <div className="relative h-screen inset-0 flex justify-between">
-            <div className="relative top-[18%] w-1/2 flex flex-col gap-3 text-cloud font-cormorant">
+        <div className="relative sm:h-screen inset-0 flex justify-between flex-col-reverse sm:flex-row">
+            <div className="relative sm:top-[18%] w-full sm:w-1/2 flex flex-col gap-3 text-cloud font-cormorant">
                 <TextSection
                     title={(curIdx !== -1) ? headers[curIdx].fullName : ''}
                     text={curIdx !== -1 ? headers[curIdx].description : ''}
                     containerClassName="gap-4"
                 />
             </div>
-            <div className="relative h-full py-[5vh] w-[800px]">
+            <div className="relative h-[80vh] sm:h-full py-[5vh] w-full sm:w-[800px] fade-full sm:fade-none">
                 <InteractiveParticles
                     className="h-full w-full"
                     images={IMAGES}

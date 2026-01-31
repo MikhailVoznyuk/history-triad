@@ -103,6 +103,33 @@
   mask-size: 100% 100%;
 }
 
+@utility fade-full {
+    --fade: 40px;
+
+    -webkit-mask-image: -webkit-linear-gradient(
+            farthest-side,
+            #000 calc(100% - var(--fade)),
+            transparent 100%
+    );
+    mask-image: radial-gradient(
+            farthest-side,
+            #000 calc(100% - var(--fade)),
+            transparent 100%
+    );
+
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+
+  }
+
+@utility fade-none {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
   }

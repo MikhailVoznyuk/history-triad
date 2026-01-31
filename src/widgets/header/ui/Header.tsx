@@ -1,4 +1,5 @@
-import Navigation from "@/widgets/header/ui/Navigation";
+import dynamic from "next/dynamic";
+const Navigation = dynamic(() => import("./Navigation"), { ssr: false });
 
 export default function Header() {
     return (

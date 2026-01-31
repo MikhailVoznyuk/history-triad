@@ -37,7 +37,7 @@ export default function Home() {
                 <MovingBackground images={BACKGROUND_URLS} idx={person.idx}/>
                 <div className="relative z-1">
                     <Header />
-                    <div className="px-2 md:px-12 mt-12 flex flex-col gap-32">
+                    <div className="px-4 md:px-12 mt-12 flex flex-col gap-32 justify-start">
                         <PersonHero
                             curIdx={person.idx}
                             images={PORTRAITS}

@@ -1,13 +1,14 @@
 'use client';
 import React from "react";
 
-import {useState, useEffect, useRef} from "react";
+import {useState, useEffect, useLayoutEffect, useRef} from "react";
 import NavItem from "@/widgets/header/ui/NavItem";
 import usePositions from "@/widgets/header/lib/usePositions";
 import {makeTimeline} from "@/shared/lib/anime";
 import {initCircle, initPosition, linearMove, arcCW, changeOpacity, customTranslate} from "@/widgets/header/lib/animations";
 import {useSelectPerson} from "@/features/select-person";
 import {MovingHeader, HeaderEmpty} from "@/widgets/header/ui/movingHeader";
+import {animeUtils} from "@/shared/lib/anime";
 
 import type {NavItemData} from "@/widgets/header/model/types";
 import type {Scope, TL} from "@/shared/lib/anime";
@@ -36,8 +37,9 @@ const PERSONS_DATA: NavItemData[]  = [
 
 
 export default function Navigation() {
+    const getRad = () => (typeof window !== "undefined" && window.innerWidth < 500 ) ? 120 : 200;
     const person = useSelectPerson();
-    const [radius, setRadius] = useState(200);
+    const [radius, setRadius] = useState(getRad());
     const positions = usePositions(radius);
     const navOrderRef = useRef<number[]>(PERSONS_DATA.map((el) => +el.id));
 
@@ -48,9 +50,12 @@ export default function Navigation() {
     const circleRef = useRef<HTMLDivElement | null>(null);
     const headerRef = useRef<HTMLDivElement | null>(null);
     const headerEmptyRef = useRef<HTMLDivElement | null>(null);
+    const rafRef = useRef<number | null>(null);
 
     const [isNavInit, setIsNavInit] = useState<boolean>(false);
     const [isNavUsed, setIsNavUsed] = useState<boolean>(false);
+
+
 
     const onSelect = (item: NavItemData) => {
 
@@ -68,8 +73,6 @@ export default function Navigation() {
         if (!isNavUsed) {
 
             changeOpacity(headerEmptyRef.current, tl, 0, 400);
-
-
 
             const dur = 800;
             const initPositions: PositionKey[] = ['bottomLeft', 'top', 'bottomRight'];
@@ -117,13 +120,6 @@ export default function Navigation() {
                 }
 
             }
-
-
-
-
-
-
-
 
         } else {
             const arcDur = 600;
@@ -180,8 +176,58 @@ export default function Navigation() {
         changeOpacity(headerEmptyRef.current, tlRef.current, 1, 400);
     }, []);
 
+    useEffect(() => {
+        const calcRad = () => {
+            rafRef.current = null;
+            const w = window.innerWidth;
+            if (w < 500) {
+                setRadius(120)
+            } else {
+                setRadius(200);
+            }
+        }
 
-    console.log('aa', isNavUsed);
+        const onResize = () => {
+            if (rafRef.current !== null) return;
+            rafRef.current = requestAnimationFrame(calcRad);
+        }
+
+        calcRad();
+
+        window.addEventListener('resize', onResize);
+
+        return ( () => {
+            window.removeEventListener('resize', onResize);
+            if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+        })
+    }, []);
+
+    useLayoutEffect(() => {
+        const els = elementsRef.current;
+        if (!els[0] || !els[1] || !els[2]) return;
+
+        const slots: PositionKey[] = isNavUsed
+            ? ["center", "left", "right"]
+            : ["bottomLeft", "top", "bottomRight"];
+
+        const order = isNavUsed ? navOrderRef.current : [0, 1, 2];
+
+        for (let k = 0; k < 3; k++) {
+            const id = order[k];
+            const el = els[id];
+            if (!el) continue;
+
+            const p = positions[slots[k]];
+
+            animeUtils.set(el, {
+                translateX: p.x,
+                translateY: p.y,
+            });
+        }
+    }, [positions, isNavUsed]);
+
+
+
     return (
         <div ref={rootRef}
              className={`flex relative justify-center items-center`}
@@ -205,7 +251,7 @@ export default function Navigation() {
                                 elementsRef.current[+item.id] = el
                             }}
                             key={item.id}
-                            onSelect={() => onSelect(item)}
+                            onSelect={() => (+item.id != person.idx) && onSelect(item)}
 
                         />
                     ))
@@ -218,7 +264,7 @@ export default function Navigation() {
                         className={"absolute w-fit h-24 min-w-56 left-1/2 top-1/2 -translate-x-1/2  overflow-hidden"}
                         style={{
                             padding: (isNavUsed) ? '0' : '20px',
-                            transform: `translateY(30px)`,
+                            transform: `${(radius === 200) ? 'translateY(30px)' : 'translateY(10px)'}`,
                             opacity: (isNavUsed) ? 1 : 0,
                             transition: '0.3s ease'
                         }}
@@ -241,7 +287,6 @@ export default function Navigation() {
                         <HeaderEmpty />
                     </div>
             }
-
         </div>
     )
 }

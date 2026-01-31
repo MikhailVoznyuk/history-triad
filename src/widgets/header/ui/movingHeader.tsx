@@ -39,11 +39,11 @@ export function MovingHeader({idx, headers}: MovingHeaderProps) {
                         exit="exit"
                     >
                         <div className="absolute inset-0 flex flex-col gap-3">
-                            <h5 className="font-cormorant text-center text-3xl font-semibold">
+                            <h5 className="font-cormorant text-center text-xl sm:text-3xl font-semibold">
                                 {headers[idx].mainText}
                             </h5>
                             {headers[idx].addText &&
-                                <h5 className="font-cormorant text-center text-2xl font-semibold">
+                                <h5 className="font-cormorant text-center text-xl sm:text-2xl font-semibold">
                                     {headers[idx].addText}
                                 </h5>
                             }

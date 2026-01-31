@@ -18,7 +18,7 @@ type TextImageSectionProps = {
 
 function TextImageBlock(props: TextImageBlockProps) {
     return (
-        <div className={`relative flex justify-center gap-32 items-center ${props.inverse && "flex-row-reverse"}`}>
+        <div className={`relative flex flex-col-reverse sm:flex-row justify-center gap-32 items-center ${props.inverse && "sm:flex-row-reverse"}`}>
             <div className="flex flex-col gap-3 basis-2/5">
                 {props.title &&
                     <Title

@@ -5,7 +5,6 @@ type TextSectionProps = {
     title: string;
     text: string;
     containerClassName?: string;
-
     titleClassName?: string;
     textClassName?: string;
 }
