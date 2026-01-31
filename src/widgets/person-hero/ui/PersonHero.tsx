@@ -12,13 +12,14 @@ type PersonHeroProps = {
     curIdx: number;
     headers: PersonData[],
     images: string[],
+    anchorId?: string
 }
 
-export function PersonHero({curIdx, headers, images}: PersonHeroProps) {
+export function PersonHero({curIdx, headers, images, anchorId}: PersonHeroProps) {
     const IMAGES = useMemo(() => images, [images])
 
     return (
-        <div className="relative sm:h-screen inset-0 flex justify-between flex-col-reverse sm:flex-row">
+        <div className="relative sm:h-screen inset-0 flex justify-between flex-col-reverse sm:flex-row" id={anchorId ?? undefined}>
             <div className="relative sm:top-[18%] w-full sm:w-1/2 flex flex-col gap-3 text-cloud font-cormorant">
                 <TextSection
                     title={(curIdx !== -1) ? headers[curIdx].fullName : ''}

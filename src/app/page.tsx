@@ -1,6 +1,6 @@
 "use client"
 
-import {useMemo} from "react";
+import {useMemo, useEffect} from "react";
 
 import Header from "@/widgets/header";
 import {MovingBackground} from "@/shared/ui/background";
@@ -31,6 +31,14 @@ export default function Home() {
         {fullName: 'Николай Михайлович Мартьянов', description: 'Описание'},
         {fullName: 'Митрофан Варламович Лагидзе', description: 'Изобретатель и предприниматель, сумевший превратить личную идею в новую культуру вкуса. Ученик аптекаря, он выбрал путь натуральных компонентов и настойчивых экспериментов, создавая сиропы из ягод, фруктов и трав родной Грузии. Его подход изменил представление о безалкогольных напитках: лимонад из ремесленного опыта стал массовым явлением, а имя Лагидзе закрепилось как знак качества, который пытались повторять и подделывать.'}
     ], [])
+
+    const anchorId = "hero";
+    useEffect(() => {
+        requestAnimationFrame(() => {
+            const el = document.getElementById(anchorId);
+            el?.scrollIntoView({behavior: "smooth", block: "start"});
+        })
+    }, [person, anchorId]);
     return (
         <div className="flex min-h-screen w-screen items-center justify-center bg-black font-sans ">
             <main className='w-full font-cormorant text-cloud'>
@@ -42,6 +50,7 @@ export default function Home() {
                             curIdx={person.idx}
                             images={PORTRAITS}
                             headers={PERSON_HEADERS}
+                            anchorId={anchorId}
                         />
                         <TextImageSection
                             title="Пример блоков с картинками"
