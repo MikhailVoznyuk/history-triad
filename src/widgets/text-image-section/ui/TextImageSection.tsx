@@ -31,7 +31,7 @@ function TextImageBlock(props: TextImageBlockProps) {
                 <TextBlock text={props.text} />
             </div>
             <FilmImage
-                imageClassName="w-[600px] h-auto"
+                imageClassName="w-[500px] h-auto"
                 width={400}
                 height={300}
                 imgSrc={props.imgSrc}

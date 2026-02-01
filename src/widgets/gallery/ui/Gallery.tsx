@@ -147,6 +147,7 @@ export function Gallery({items, title}: GalleryItemProps) {
                                             effectNeeded
                                             shadowBorder={[10, 2]}
                                             sizes={`${blockWidth[0]}px`}
+                                            grayScale
                                         />
                                     </motion.div>
                                 )}
@@ -208,9 +209,9 @@ export function Gallery({items, title}: GalleryItemProps) {
                                         fill
                                         containerClassName="aspect-[16/9]"
                                         containerStyle={{width: "100%"}}
-
                                         shadowBorder={[20, 10]}
                                         sizes="(max-width: 768px) 100vw, 1200px"
+                                        grayScale
                                     />
 
                                 </motion.div>
