@@ -34,6 +34,7 @@ export default function Home() {
 
     const anchorId = "hero";
     useEffect(() => {
+        if (person.idx === -1) return;
         requestAnimationFrame(() => {
             const el = document.getElementById(anchorId);
             el?.scrollIntoView({behavior: "smooth", block: "start"});

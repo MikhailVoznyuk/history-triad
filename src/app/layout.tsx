@@ -2,7 +2,7 @@ import React from "react"
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import {SelectPersonProvider} from "@/features/select-person";
+import {AppProviders} from "@/app/providers";
 import {cormorant} from "@/shared/config/fonts";
 
 const geistSans = Geist({
@@ -30,9 +30,9 @@ export default function RootLayout({
       <body
         className={`antialiased`}
       >
-          <SelectPersonProvider>
+          <AppProviders>
               {children}
-          </SelectPersonProvider>
+          </AppProviders>
 
       </body>
     </html>

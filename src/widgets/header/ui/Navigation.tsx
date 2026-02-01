@@ -54,11 +54,11 @@ export default function Navigation() {
 
     const [isNavInit, setIsNavInit] = useState<boolean>(false);
     const [isNavUsed, setIsNavUsed] = useState<boolean>(false);
-
+    const [isAnimating, setIsAnimating] = useState<boolean>(false);
 
 
     const onSelect = (item: NavItemData) => {
-
+        setIsAnimating(true);
 
         const tl = makeTimeline({autoplay: true});
 
@@ -159,6 +159,7 @@ export default function Navigation() {
         }
 
         tl.then(() => {
+            setIsAnimating(false);
             setIsNavUsed(true);
             person.set(+item.id);
 
@@ -252,6 +253,7 @@ export default function Navigation() {
                             }}
                             key={item.id}
                             onSelect={() => (+item.id != person.idx) && onSelect(item)}
+                            isAnimating={isAnimating}
 
                         />
                     ))

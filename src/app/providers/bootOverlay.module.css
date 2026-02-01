@@ -1,0 +1,19 @@
+.loader {
+    animation: loader-rot 1.6s ease-in-out infinite;
+    will-change: transform;
+}
+
+.loader__dot {
+    animation: loader-pulse 3s ease-in-out infinite;
+    will-change: transform;
+    transform-origin: center;
+}
+
+@keyframes loader-rot {
+    to {transform: rotate(360deg);}
+}
+
+@keyframes loader-pulse {
+    0%, 100% {transform: scale(1);}
+    50% {transform: scale(0.7);}
+}

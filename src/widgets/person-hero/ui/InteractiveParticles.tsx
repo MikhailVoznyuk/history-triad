@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import {useLayoutEffect, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { gsap } from 'gsap';
+import {useBoot} from "@/app/providers/boot-provider";
 
 type Props = {
   images: string[];
@@ -442,7 +443,7 @@ class Particles {
     this.webgl = webgl;
   }
 
-  init(src: string) {
+  init(src: string,  onReady?: () => void) {
     const id = ++this.loadId;
 
     const loader = new THREE.TextureLoader();
@@ -470,9 +471,14 @@ class Particles {
           this.initTouch();
           this.resize();
           this.show();
+
+          requestAnimationFrame(() => requestAnimationFrame(() => onReady?.()));
         },
         undefined,
-        (err) => console.error('[InteractiveParticles] texture load failed:', src, err)
+        (err) => {
+          console.error('[InteractiveParticles] texture load failed:', src, err);
+          onReady?.();
+        }
     );
   }
 
@@ -826,11 +832,6 @@ class GUIView {
     this.controlKit.disable();
   }
 
-  toggle() {
-    if (this.controlKit._enabled) this.disable();
-    else this.enable();
-  }
-
   private onTouchChange() {
     const p = this.app.webgl?.particles;
     if (!p?.touch) return;
@@ -875,9 +876,13 @@ class WebGLView {
   private images: string[];
   private chain = Promise.resolve();
 
-  constructor(containerEl: HTMLDivElement, images: string[]) {
+  private onFirstReady?: () => void;
+  private readyFired = false;
+
+  constructor(containerEl: HTMLDivElement, images: string[], onFirstReady?: () => void) {
     this.containerEl = containerEl;
     this.images = images;
+    this.onFirstReady = onFirstReady;
 
     this.camera.position.z = 300;
 
@@ -905,12 +910,18 @@ class WebGLView {
 
     this.currSample = index;
 
+    const fireReadyOnce = () => {
+      if (this.readyFired) return;
+      this.readyFired = true;
+      this.onFirstReady?.();
+    };
+
     this.chain = this.chain.then(() => {
       if (!this.particles.object3D) {
-        this.particles.init(this.images[index]);
+        this.particles.init(this.images[index], fireReadyOnce);
         return;
       }
-      return this.particles.hide(true).then(() => this.particles.init(this.images[index]));
+      return this.particles.hide(true).then(() => this.particles.init(this.images[index], fireReadyOnce));
     });
   }
 
@@ -958,8 +969,15 @@ class App {
 
   private ro: ResizeObserver | null = null;
 
-  constructor(private containerEl: HTMLDivElement, images: string[], private startIndex: number | null, private clickToNext: boolean, ControlKitClass: any) {
-    this.webgl = new WebGLView(containerEl, images);
+  constructor(
+      private containerEl: HTMLDivElement,
+      images: string[],
+      private startIndex: number | null,
+      private clickToNext: boolean,
+      ControlKitClass: any,
+      onFirstReady?: () => void
+  ) {
+    this.webgl = new WebGLView(containerEl, images, onFirstReady);
     this.gui = new GUIView(this, ControlKitClass);
 
     if (this.startIndex != null) this.webgl.goto(this.startIndex);
@@ -1051,10 +1069,34 @@ export function InteractiveParticles({ images, startIndex, clickToNext = true, c
   const ref = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<App | null>(null);
 
-  // init ONCE
+  const { start, done } = useBoot();
+  const doneOnce = useRef(false);
+
+  const started = useRef<boolean>(false);
+  useLayoutEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    start();
+    return () => {
+      if (!doneOnce.current) done();
+    };
+  }, [start, done]);
+
+  const markReady = () => {
+    if (doneOnce.current) return;
+    doneOnce.current = true;
+    console.log('[boot] particles ready');
+    done();
+  };
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    if (!images.length) {
+      markReady();
+      return;
+    }
 
     let cancelled = false;
 
@@ -1063,13 +1105,11 @@ export function InteractiveParticles({ images, startIndex, clickToNext = true, c
       if (cancelled) return;
       const ControlKitClass = (mod as any).default || (mod as any);
 
-      const app = new App(el, images, null, clickToNext, ControlKitClass);
-      appRef.current = app;
+      const safeIdx =
+          images.length > 0 ? Math.max(0, Math.min(images.length - 1, startIndex ?? 0)) : 0;
 
-      if (startIndex != null) {
-        const idx = Math.max(0, Math.min(images.length - 1, startIndex));
-        app.webgl.goto(idx);
-      }
+      const app = new App(el, images, safeIdx, clickToNext, ControlKitClass, markReady);
+      appRef.current = app;
 
       if (active === false) app.stop();
       else app.start();
@@ -1080,7 +1120,6 @@ export function InteractiveParticles({ images, startIndex, clickToNext = true, c
       appRef.current?.destroy();
       appRef.current = null;
     };
-    // ВАЖНО: пустые deps, чтобы App не пересоздавался
   }, []);
 
   // react to startIndex changes without remount
