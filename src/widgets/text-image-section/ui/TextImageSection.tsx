@@ -1,5 +1,6 @@
 import {Title, TextBlock} from "@/shared/ui/text-blocks";
 import {FilmImage} from "@/shared/ui/images/fim-image";
+import {Reveal} from "@/shared/ui/reveal";
 
 type TextImageBlockData =  {
     id: string;
@@ -21,26 +22,34 @@ function TextImageBlock(props: TextImageBlockProps) {
         <div className={`relative flex flex-col-reverse sm:flex-row justify-center gap-10 sm:gap-32 items-center ${props.inverse && "sm:flex-row-reverse"}`}>
             <div className="flex flex-col gap-3 basis-2/5">
                 {props.title &&
-                    <Title
-                        title={props.title}
-                        lineNeeded={false}
-                        titleClassName="text-gold text-xl font-bold"
+                    <Reveal>
+                        <Title
+                            title={props.title}
+                            lineNeeded={false}
+                            titleClassName="text-gold text-3xl font-bold"
 
-                    />
+                        />
+                    </Reveal>
+
                 }
-                <TextBlock text={props.text} />
+                <Reveal>
+                    <TextBlock text={props.text} />
+                </Reveal>
+
             </div>
-            <FilmImage
-                imageClassName="w-[500px] h-auto"
-                width={400}
-                height={300}
-                imgSrc={props.imgSrc}
-                alt="Text block image"
-                effectNeeded
-                sepiaNeeded={props.imgEffect === "sepia"}
-                invertNeeded={props.imgEffect === "invert"}
-                shadowBorder={[40, 20]}
-            />
+            <Reveal>
+                <FilmImage
+                    imageClassName="w-[500px] h-auto"
+                    width={400}
+                    height={300}
+                    imgSrc={props.imgSrc}
+                    alt="Text block image"
+                    effectNeeded
+                    sepiaNeeded={props.imgEffect === "sepia"}
+                    invertNeeded={props.imgEffect === "invert"}
+                    shadowBorder={[40, 20]}
+                />
+            </Reveal>
         </div>
     )
 }
@@ -48,7 +57,10 @@ export function TextImageSection({title, blocks} : TextImageSectionProps) {
     return (
 
         <div className="flex flex-col gap-28 sm:gap-30 items-center">
-            {title && <Title title={title} lineNeeded={true}  isCentered={true} containerClassName=" sm:-mb-12" />}
+            {title &&
+                <Reveal>
+                    <Title title={title} lineNeeded={true}  isCentered={true} containerClassName=" sm:-mb-12" />
+                </Reveal>}
             {blocks.map((block, i) => (
                 <TextImageBlock
                     key={block.id}

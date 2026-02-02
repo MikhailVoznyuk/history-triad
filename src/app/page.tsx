@@ -8,16 +8,19 @@ import {useSelectPerson} from "@/features/select-person";
 import {PersonHero} from "@/widgets/person-hero/ui/PersonHero";
 import {TextSection} from "@/widgets/text-section";
 import {TextImageSection} from "@/widgets/text-image-section";
+import {Label} from "@/shared/ui/text-blocks";
 import {VerticalTimeLine} from "@/widgets/timeline/ui/VerticalTimeLine";
 import {Gallery} from "@/widgets/gallery";
+import {Reveal} from "@/shared/ui/reveal";
 import {TIMELINE} from "@/widgets/timeline/model/data";
 import {persons} from "@/entities/model/data/persons";
 import type {PersonData} from "@/widgets/person-hero/ui/PersonHero";
 import type {ContentSection} from "@/entities/model/types";
+import {Reem_Kufi} from "next/dist/compiled/@next/font/dist/google";
 
 
 const BACKGROUND_URLS = [
-    '/backgrounds/background02.jpg',
+    '/backgrounds/background0.jpg',
     '/backgrounds/background1.jpg',
     '/backgrounds/background2.jpg',
     '/backgrounds/background3.jpg'
@@ -94,11 +97,16 @@ export default function Home() {
                             anchorId={anchorId}
                         />
                         {sections && sections.length > 0 && sections.map((s) => r(s))}
-
                     </div>
-
+                    <div className="flex w-screen justify-center py-6 mt-20">
+                        <Reveal>
+                            <Label className="text-lg sm:text-xl font-semibold">© РГАУ-МСХА 2026</Label>
+                        </Reveal>
+                    </div>
                 </div>
+
             </main>
+
         </div>
     );
 }

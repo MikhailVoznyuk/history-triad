@@ -1,3 +1,5 @@
-import {ArrowButton} from "@/shared/ui/buttons/ui/ArrowButton";
+import {ArrowBtn} from "@/shared/ui/buttons/ui/ArrowBtn";
+import {CloseBtn} from "@/shared/ui/buttons/ui/CloseBtn";
 
-export {ArrowButton};
+export {ArrowBtn};
+export {CloseBtn};

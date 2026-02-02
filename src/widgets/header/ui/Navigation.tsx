@@ -285,7 +285,7 @@ export default function Navigation() {
                     </div> :
                     <div
                         ref = {headerEmptyRef}
-                        className="absolute w-fit h-24 min-w-56 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0">
+                        className="absolute w-fit h-20 sm:h-24 min-w-56 flex align-center justify-center left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0">
                         <HeaderEmpty />
                     </div>
             }

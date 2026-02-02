@@ -1,7 +1,7 @@
 import {useState, useRef, useEffect} from "react";
 import {useInView} from "framer-motion";
 import {Title, TextBlock} from "@/shared/ui/text-blocks";
-import {ArrowButton} from "@/shared/ui/buttons";
+import {ArrowBtn} from "@/shared/ui/buttons";
 import type {TimeLineItem} from "@/widgets/timeline/model/types";
 
 export type TimeLineProps = {
@@ -26,14 +26,14 @@ export function TimelineBlock({item, idx, activeIdx, onActive, observe=true}: Ti
     }, [observe, inView, idx, onActive]);
     return (
         <div className={`relative h-[260px] sm:h-[290px] w-fit`}>
-            <div className={`w-[280px] sm:w-[500px] ${opened ? "h-fit" : "h-[260px] sm:h-[290px]"} flex flex-col gap-4 font-cormorant p-4 shadow-md rounded-md`}
+            <div className={`w-[280px] sm:w-[500px] ${opened ? "h-fit" : "h-[260px] sm:h-[290px]"} flex flex-col gap-4 font-cormorant p-4 shadow-md rounded-xl`}
                  ref={ref}
                  style={{
                      opacity: `${idx > activeIdx ? 0 : 1} `,
                      background: 'rgba(0, 0, 0, 0.34)',
                      transition:  '0.3s ease-in-out',
                      backdropFilter: 'blur(6px)',
-                     border: '1px solid rgba(211, 211, 211, 0.7)'
+                     border: '1px solid rgba(211, 211, 211, 0.5)'
                  }}
             >
                 <div
@@ -47,7 +47,7 @@ export function TimelineBlock({item, idx, activeIdx, onActive, observe=true}: Ti
                 </div>
                 {isTextCropped && (
                     <div className="flex w-full justify-end">
-                        <ArrowButton onClick={() => setOpened(!opened)} dir="bottom" rotateOnClick/>
+                        <ArrowBtn onClick={() => setOpened(!opened)} dir="bottom" rotateOnClick/>
                     </div>
                 )}
 

@@ -12,7 +12,7 @@ type SecondaryButtonProps={
     wrapperStyle?: React.CSSProperties;
 }
 
-export function ArrowButton(
+export function ArrowBtn(
     {
         onClick,
         dir,
@@ -36,7 +36,7 @@ export function ArrowButton(
                 onClick()
                 if (rotateOnClick) {setAngle((angle + 180) % 360)}
             }} className={twMerge(
-                "relative rounded-full bg-gold border-0 size-10 sm:size-12 flex justify-center items-center origin-center",
+                "relative rounded-full bg-gold border-0 size-10 sm:size-12 flex justify-center items-center origin-center cursor-pointer",
                 className
             )}
                     style={{
