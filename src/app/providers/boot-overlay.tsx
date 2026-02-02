@@ -11,7 +11,7 @@ export function BootOverlay() {
             {
                 isBooting && (
                     <motion.div
-                        className="fixed inset-0 z-[9999] flex justify-center items-center bg-black/70 backdrop-blur-sm"
+                        className="fixed inset-0 z-[9999] flex justify-center items-center bg-black/70 backdrop-blur-md"
                         initial={{opacity: 1}}
                         animate={{opacity: 1}}
                         exit={{opacity: 0}}
