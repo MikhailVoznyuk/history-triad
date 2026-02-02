@@ -1,63 +1,18 @@
-.oldFilm *,
-.oldFilm *:before,
-.oldFilm *:after {
-    position: absolute;
-}
-
 .oldFilm {
     --filmbg: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     overflow: hidden;
-    transition: all 0.5s ease 0s;
+
+    pointer-events: none;
+    z-index: 2;
 
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     contain: paint;
-
-}
-
-.oldFilm:after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-}
-.film,
-.effect {
-    width: 100%;
-    height: 100%;
-    filter: blur(0.45px) drop-shadow(0 0 0 #fff1);
-}
-.film:after,
-.effect:after {
-    content: '';
-    display: block;
-    width: 120%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    padding-left: 100px;
-    opacity: 0.5;
-    animation: film-scratch 0.45s steps(1) infinite;
-    background: repeating-linear-gradient(90deg, #0002 0 2px, transparent 4px 37%);
-}
-.effect:after {
-    left: 30%;
-    animation: effect-scratch 2s infinite;
-}
-.grain {
-    width: 100%;
-    height: 100%;
 }
 
 .film,
@@ -67,32 +22,67 @@
     inset: 0;
 }
 
-.film:after,
-.effect:after,
-.grain:after {
+.film,
+.effect {
+    filter: blur(0.45px) drop-shadow(0 0 0 #fff1);
+}
+
+.film::after,
+.effect::after {
+    content: "";
     position: absolute;
     inset: 0;
+
+    opacity: 0.5;
+    background: repeating-linear-gradient(90deg, #0002 0 2px, transparent 4px 37%);
+    animation: film-scratch 0.45s steps(1) infinite;
+
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
     will-change: transform, opacity;
 }
 
-.grain:after {
+.effect::after {
+    opacity: 0.4;
+    animation: effect-scratch 2s steps(1) infinite;
+}
+
+.grain::after {
     content: "";
     position: absolute;
     inset: -5%;
+
     opacity: 0.16;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
     background-size: 180px 180px;
     background-position: 0 0;
 
-    mix-blend-mode: multiply;
+    mix-blend-mode: soft-light;
     filter: contrast(170%);
+
     transform: translateZ(0);
+    -webkit-transform: translateZ(0);
     will-change: background-position;
     animation: noiseShift 0.5s steps(1) infinite;
 }
 
+.sepiaWash {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: rgba(255, 210, 140, 0.7);
+    mix-blend-mode: multiply;
+}
+
+.invert .film::after,
+.invert .effect::after {
+    filter: invert(1);
+}
+
+.sepia {
+    filter: sepia(0.4);
+}
 @keyframes noiseShift {
     0%   { background-position:   0px   0px; }
     25%  { background-position: -20px  10px; }
@@ -101,18 +91,6 @@
     100% { background-position:   0px   0px; }
 }
 
-@keyframes grain {
-    0%, 100% { transform: translate(0, 0); }
-    10% { transform: translate(-1%, -1%); }
-    20% { transform: translate(1%, 1%); }
-    30% { transform: translate(-2%, -2%); }
-    40% { transform: translate(3%, 3%); }
-    50% { transform: translate(-3%, -3%); }
-    60% { transform: translate(4%, 4%); }
-    70% { transform: translate(-4%, -4%); }
-    80% { transform: translate(2%, 2%); }
-    90% { transform: translate(-3%, -3%); }
-}
 @keyframes film-scratch {
     0%, 100% { transform: translateX(0); opacity: 0.5; }
     10% { transform: translateX(-1%); }
@@ -125,29 +103,19 @@
     80% { transform: translateX(10%); opacity: 0.25; }
     90% { transform: translateX(-2%); }
 }
+
 @keyframes effect-scratch {
     0% { transform: translateX(0); opacity: 0.75; }
-    10% { transform: translateX(-1%); }
     20% { transform: translateX(1%); }
-    30% { transform: translateX(-2%); }
     40% { transform: translateX(3%); }
-    50% { transform: translateX(-3%); opacity: 0.5; }
-    60% { transform: translateX(8%); }
-    70% { transform: translateX(-3%); }
+    60% { transform: translateX(8%); opacity: 0.5; }
     80% { transform: translateX(10%); opacity: 0.25; }
-    90% { transform: translateX(20%); }
     100% { transform: translateX(30%); }
 }
 
 @media (hover: none) and (pointer: coarse) {
     .film,
     .effect {
-        filter: blur(0.35px); /* или вообще none */
+        filter: blur(0.35px);
     }
-}
-.sepia {
-    filter: sepia(1);
-}
-.invert .film {
-    filter: invert(1)
 }

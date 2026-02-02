@@ -26,7 +26,7 @@ export function ScrollToNavButton({navId, isVisible}: Props) {
                 <div className="absolute left-1/2 top-1/2 size-8 sm:size-10  rounded-full -translate-1/2 border-2 border-graphite ">
                     <span className="absolute left-1/2 top-1/2 size-3 sm:size-4  bg-graphite rounded-full -translate-1/2"/>
                     <span className="absolute left-0 top-1/2 size-2 sm:size-[10px]  bg-graphite rounded-full -translate-1/2"/>
-                    <span className="absolute left-full top-1/2 size-[10px] bg-graphite rounded-full -translate-1/2"/>
+                    <span className="absolute left-full top-1/2 size-2 sm:size-[10px] bg-graphite rounded-full -translate-1/2"/>
                 </div>
             </div>
 

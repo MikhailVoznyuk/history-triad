@@ -161,7 +161,7 @@ export function Gallery({items, title}: GalleryItemProps) {
                                                      imgSrc={item.src}
                                                      alt={""}
                                                      fill
-                                                     containerClassName="aspect-[16/9]"
+                                                     containerClassName="aspect-[3/2]"
                                                      containerStyle={{
                                                          width: `${blockWidth[0]}px`,
                                                          transition: "0.3s ease"
@@ -236,7 +236,7 @@ export function Gallery({items, title}: GalleryItemProps) {
                                 <div className="relative  z-10 w-full h-full flex justify-center items-center p-4 sm-p-8">
                                 <motion.div
                                     layoutId={lid(active.id)}
-                                    className="relative w-full max-w-[1200px] aspect-[16/12] overflow-hidden"
+                                    className="relative w-full max-w-[1200px] aspect-[16/9] overflow-hidden"
                                     style={{cursor: "zoom-out"}}
                                     onClick={() => setOpenId(null)}
                                 >
@@ -244,7 +244,7 @@ export function Gallery({items, title}: GalleryItemProps) {
                                         imgSrc={opened.src}
                                         alt=""
                                         fill
-                                        containerClassName="aspect-[16/12]"
+                                        containerClassName="aspect-[16/9]"
                                         containerStyle={{width: "100%"}}
                                         shadowBorder={[20, 10]}
                                         sizes="(max-width: 768px) 100vw, 1200px"
