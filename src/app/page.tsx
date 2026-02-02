@@ -85,7 +85,7 @@ export default function Home() {
     const sections: ContentSection[] | null = ((person.idx !== -1) ? (persons[person.idx]?.sections ?? null) : null)
 
     return (
-        <div className="flex min-h-screen w-screen items-center justify-center bg-black font-sans "
+        <div className="flex min-h-screen w-full items-center justify-center bg-black font-sans "
         >
             <main className='w-full font-cormorant text-cloud'>
                 <MovingBackground images={BACKGROUND_URLS} idx={person.idx}/>

@@ -30,7 +30,7 @@ function DesktopTimeLine({items}: {items: TimeLineItem[]}) {
     });
 
     return (
-        <div ref={wrapRef} className="relative w-screen max-w-[1200px] mx-auto flex justify-center gap-24 px-6">
+        <div ref={wrapRef} className="relative w-full max-w-[1200px] mx-auto flex justify-center gap-24 px-6">
             <div className="flex flex-col gap-[50vh] w-fit">
                 {items.map((item, index) => (
                     <TimelineBlock
@@ -120,7 +120,7 @@ function MobileTimeLine({items}: {items: TimeLineItem[]}) {
     });
 
     return (
-        <div ref={wrapRef} className="relative w-screen" style={{height: `${scrollHeightVh}vh`}}>
+        <div ref={wrapRef} className="relative w-full" style={{height: `${scrollHeightVh}vh`}}>
             <div ref={stageRef} className="sticky top-0 h-screen overflow-hidden">
                 <div className="absolute left-6 right-6 top-[14px] h-1 z-0">
                     <div className="relative h-full w-full rounded-xl">
@@ -152,7 +152,7 @@ function MobileTimeLine({items}: {items: TimeLineItem[]}) {
                                     <Title
                                         lineNeeded={false}
                                         isCentered={true}
-                                        titleClassName="font-cormorant text-cloud text-3xl font-bold mt-2 whitespace-nowrap"
+                                        titleClassName="font-cormorant text-cloud text-2xl font-bold mt-2 whitespace-nowrap"
                                     >
                                         {item.year}
                                     </Title>

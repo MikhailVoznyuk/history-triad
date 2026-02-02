@@ -81,7 +81,7 @@ export function TimelineMark({top, year, tp}: TimelineMarkProps) {
                 transition: '0.2s opacity ease-in-out',
             }}>
             </div>
-            <Title titleClassName="font-cormorant text-5xl font-bold mb-1 whitespace-nowrap" isCentered={true}>{year}</Title>
+            <Title titleClassName="font-cormorant text-3xl font-bold mb-1 whitespace-nowrap" isCentered={true}>{year}</Title>
         </div>
     )
 }
