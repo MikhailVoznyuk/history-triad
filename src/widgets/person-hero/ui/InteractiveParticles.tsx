@@ -70,6 +70,8 @@ class TouchTexture {
   }
 
   update() {
+    if (this.trail.length === 0) return;
+
     this.clear();
 
     this.trail.forEach((p, i) => {
@@ -215,8 +217,6 @@ class InteractiveControls extends Emitter<InteractiveEvents> {
   }
 
   private onMove(e: MouseEvent | TouchEvent) {
-    this.resize();
-
     const { x, y } = this.getClientXY(e);
 
     const nx = ((x - this.rect.left) / this.rect.width) * 2 - 1;
@@ -250,8 +250,6 @@ class InteractiveControls extends Emitter<InteractiveEvents> {
   }
 
   private onDown(e: MouseEvent | TouchEvent) {
-    this.resize();
-
     this.isDown = true;
     this.onMove(e);
 
@@ -484,11 +482,13 @@ class Particles {
 
 
   private initPoints(discard: boolean) {
-    const maxSide = 700;     // меньше = легче
-    const step = 2;          // больше = меньше точек
-    const density = 0.7;    // 0..1, разрядка
-    const threshold = 44;    // было 34, сделай строже
-    const maxParticles = 28000;
+    const low = this.webgl.isLowPower;
+
+    const maxSide = low ? 512 : 700;
+    const step = 2;
+    const density = low ? 0.55 : 0.7;
+    const threshold = low ? 52 : 44;
+    const maxParticles = low ? 12000 : 28000;
 
     const img = this.texture.image as HTMLImageElement;
 
@@ -864,7 +864,6 @@ class WebGLView {
 
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(50, 1, 1, 10000);
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   clock = new THREE.Clock(true);
 
   interactive!: InteractiveControls;
@@ -872,6 +871,15 @@ class WebGLView {
 
   fovHeight = 1;
   currSample: number | null = null;
+
+  isLowPower =
+      matchMedia('(hover: none) and (pointer: coarse)').matches;
+
+  renderer = new THREE.WebGLRenderer({
+    antialias: !this.isLowPower,
+    alpha: true,
+    powerPreference: this.isLowPower ? 'low-power' : 'high-performance',
+  });
 
   private images: string[];
   private chain = Promise.resolve();
@@ -961,13 +969,44 @@ class App {
   webgl!: WebGLView;
   gui!: GUIView;
 
+  private lastFrame = 0;
+
+  private animate = (t = 0) => {
+    if (!this.running) return;
+
+    const low = this.webgl.isLowPower;
+    const target = low ? 30 : 60;
+    const step = 1000 / target;
+
+    if (t - this.lastFrame >= step) {
+      this.lastFrame = t;
+      this.update();
+      this.draw();
+    }
+
+    this.raf = requestAnimationFrame(this.animate);
+  };
+
   private raf = 0;
+  private resizeRaf = 0;
+  private rectRaf = 0;
+
+  private requestResize = () => {
+    if (this.resizeRaf) return;
+    this.resizeRaf = requestAnimationFrame(() => {
+      this.resizeRaf = 0;
+      const r = this.containerEl.getBoundingClientRect();
+      this.webgl.resize(Math.max(1, r.width), Math.max(1, r.height));
+    });
+  };
 
   private onResizeBound!: () => void;
   private onKeyUpBound!: (e: KeyboardEvent) => void;
   private onClickBound!: () => void;
 
   private ro: ResizeObserver | null = null;
+
+
 
   constructor(
       private containerEl: HTMLDivElement,
@@ -991,23 +1030,45 @@ class App {
     this.clickToNext = v;
   }
 
+
+
+  private requestRectUpdate = () => {
+    if (this.rectRaf) return;
+    this.rectRaf = requestAnimationFrame(() => {
+      this.rectRaf = 0;
+      this.webgl.interactive.resize();
+    });
+  };
+
+  private onScrollBound!: () => void;
+
   private addListeners() {
-    this.onResizeBound = this.resize.bind(this);
+    this.onResizeBound = this.requestResize;
+    this.onScrollBound = this.requestRectUpdate;
     this.onKeyUpBound = this.keyup.bind(this);
     this.onClickBound = this.click.bind(this);
 
     window.addEventListener('resize', this.onResizeBound);
+    window.addEventListener('scroll', this.onScrollBound, { passive: true, capture: true });
     window.addEventListener('keyup', this.onKeyUpBound);
     this.webgl.renderer.domElement.addEventListener('click', this.onClickBound);
 
     this.ro = new ResizeObserver(this.onResizeBound);
     this.ro.observe(this.containerEl);
+
+    // iOS Safari: viewport пляшет из-за адресной строки
+    window.visualViewport?.addEventListener('scroll', this.onScrollBound, { passive: true });
+    window.visualViewport?.addEventListener('resize', this.onResizeBound, { passive: true });
   }
 
   private removeListeners() {
     window.removeEventListener('resize', this.onResizeBound);
+    window.removeEventListener('scroll', this.onScrollBound, { capture: true } as any);
     window.removeEventListener('keyup', this.onKeyUpBound);
     this.webgl.renderer.domElement.removeEventListener('click', this.onClickBound);
+
+    window.visualViewport?.removeEventListener('scroll', this.onScrollBound as any);
+    window.visualViewport?.removeEventListener('resize', this.onResizeBound as any);
 
     this.ro?.disconnect();
     this.ro = null;
@@ -1027,13 +1088,6 @@ class App {
     cancelAnimationFrame(this.raf);
   }
 
-  private animate = () => {
-    if (!this.running) return;
-    this.update();
-    this.draw();
-    this.raf = requestAnimationFrame(this.animate);
-  };
-
   private update() {
     this.webgl.update();
     this.gui.update();
@@ -1044,8 +1098,7 @@ class App {
   }
 
   private resize() {
-    const r = this.containerEl.getBoundingClientRect();
-    this.webgl.resize(Math.max(1, r.width), Math.max(1, r.height));
+    this.requestResize();
   }
 
   private keyup(e: KeyboardEvent) {
@@ -1058,6 +1111,8 @@ class App {
   }
 
   destroy() {
+    cancelAnimationFrame(this.rectRaf);
+    cancelAnimationFrame(this.resizeRaf);
     cancelAnimationFrame(this.raf);
     this.removeListeners();
     this.gui.destroy();
@@ -1143,6 +1198,23 @@ export function InteractiveParticles({ images, startIndex, clickToNext = true, c
     if (!app) return;
     if (active === false) app.stop();
     else app.start();
+  }, [active]);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const io = new IntersectionObserver(([entry]) => {
+      const app = appRef.current;
+      if (!app) return;
+
+      const shouldRun = entry.isIntersecting && active !== false;
+      if (shouldRun) app.start();
+      else app.stop();
+    }, { threshold: 0.15 });
+
+    io.observe(el);
+    return () => io.disconnect();
   }, [active]);
 
   return <div ref={ref} className={className} />;

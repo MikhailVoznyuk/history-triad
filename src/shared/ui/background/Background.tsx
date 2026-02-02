@@ -7,7 +7,7 @@ type BackgroundProps = {
 }
 export function Background({img, priority=false}: BackgroundProps) {
     return (
-        <div className="fixed top-0 left-0  inset-0 overflow-y-auto pointer-events-none">
+        <div className="fixed top-0 left-0  inset-0 pointer-events-none">
             <div className="relative size-full">
                 <Image
                     src={img}
@@ -17,20 +17,8 @@ export function Background({img, priority=false}: BackgroundProps) {
                     priority={priority}
                     alt="background"
                 />
-                <div className="absolute top-0  left-0 inset-0"
-                    style={
-                        {
-                            background: 'rgba(0,0,0, 0.6)'
-                        }
-                    }
-                />
-                <div className="absolute top-0 left-0 inset-0"
-                    style={
-                    {
-                        boxShadow: "0 0 100px 80px black inset",
-                        backdropFilter: "blur(1.5px)",
-                    }
-                } />
+                <div className={styles.dim} />
+                <div className={styles.vignette} />
                 <div className={styles.oldFilm}>
                     <div className={styles.film}>
                         <div className={styles.effect}>

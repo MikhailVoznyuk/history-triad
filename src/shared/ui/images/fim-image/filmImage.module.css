@@ -119,3 +119,23 @@
         filter: blur(0.35px);
     }
 }
+
+@media (hover: none) and (pointer: coarse),
+(prefers-reduced-motion: reduce) {
+    .film::after,
+    .effect::after,
+    .grain::after {
+        animation: none !important;
+    }
+
+    .grain::after {
+        mix-blend-mode: normal;
+        filter: none;
+        opacity: 0.08;
+    }
+
+    .film,
+    .effect {
+        filter: none;
+    }
+}

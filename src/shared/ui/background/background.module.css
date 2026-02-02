@@ -83,6 +83,31 @@
 .sepia {
     filter: sepia(0.4);
 }
+
+.dim {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+}
+
+.vignette {
+    position: absolute;
+    inset: 0;
+    box-shadow: 0 0 100px 80px black inset;
+    backdrop-filter: blur(1.5px);
+}
+
+@media (hover: none) and (pointer: coarse),
+(prefers-reduced-motion: reduce),
+(prefers-reduced-transparency: reduce) {
+    .vignette {
+        box-shadow: 0 0 40px 20px black inset;
+        backdrop-filter: none;
+    }
+    .oldFilm {
+        display: none;
+    }
+}
 @keyframes noiseShift {
     0%   { background-position:   0px   0px; }
     25%  { background-position: -20px  10px; }
