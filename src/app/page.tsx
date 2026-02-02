@@ -11,6 +11,7 @@ import {TextImageSection} from "@/widgets/text-image-section";
 import {Label} from "@/shared/ui/text-blocks";
 import {VerticalTimeLine} from "@/widgets/timeline/ui/VerticalTimeLine";
 import {Gallery} from "@/widgets/gallery";
+import {ScrollToNavButton} from "@/widgets/nav-scroll";
 import {Reveal} from "@/shared/ui/reveal";
 import {TIMELINE} from "@/widgets/timeline/model/data";
 import {persons} from "@/entities/model/data/persons";
@@ -70,15 +71,16 @@ export default function Home() {
             document.body.style.overflow = "";
         }
     }, [person.idx]);
-    const anchorId = "hero";
+    const heroAnchorId = "hero";
+    const navAnchorId = "nav";
     useEffect(() => {
         if (person.idx === -1) return;
         console.log(person.idx);
         requestAnimationFrame(() => {
-            const el = document.getElementById(anchorId);
+            const el = document.getElementById(heroAnchorId);
             el?.scrollIntoView({behavior: "smooth", block: "start"});
         })
-    }, [person, anchorId]);
+    }, [person, heroAnchorId]);
 
     const sections: ContentSection[] | null = ((person.idx !== -1) ? (persons[person.idx]?.sections ?? null) : null)
 
@@ -88,13 +90,13 @@ export default function Home() {
             <main className='w-full font-cormorant text-cloud'>
                 <MovingBackground images={BACKGROUND_URLS} idx={person.idx}/>
                 <div className="relative z-1">
-                    <Header />
+                    <Header anchorId={navAnchorId} />
                     <div className="px-4 md:px-12 mt-12 flex flex-col gap-32 justify-start">
                         <PersonHero
                             curIdx={person.idx}
                             images={PORTRAITS}
                             headers={PERSON_HEADERS}
-                            anchorId={anchorId}
+                            anchorId={heroAnchorId}
                         />
                         {sections && sections.length > 0 && sections.map((s) => r(s))}
                     </div>
@@ -104,6 +106,7 @@ export default function Home() {
                         </Reveal>
                     </div>
                 </div>
+                <ScrollToNavButton navId={navAnchorId} isVisible={person.idx !== -1} />
 
             </main>
 
