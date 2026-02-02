@@ -30,12 +30,13 @@ export function PersonHero({curIdx, headers, images, anchorId}: PersonHeroProps)
                     />
                 </Reveal>
             </div>
-            <div className="relative h-[80vh] sm:h-full py-[5vh] w-full sm:w-[800px] fade-full sm:fade-none">
+            <div className="relative h-[80vh] sm:h-full py-[5vh] w-full sm:w-[800px] fade-full sm:fade-none pointer-events-none sm:pointer-events-auto">
                 <InteractiveParticles
                     className="h-full w-full"
                     images={IMAGES}
                     startIndex={curIdx === -1 ? 0 : curIdx}
                     active={curIdx !== -1}
+                    clickToNext={false}
                 />
             </div>
         </div>
