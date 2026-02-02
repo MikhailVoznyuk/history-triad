@@ -20,10 +20,13 @@ export function TimelineBlock({item, idx, activeIdx, onActive, observe=true}: Ti
 
     const isTextCropped = item.text.length > 198;
 
+    const raf = useRef<number | null>(null);
+
     useEffect(() => {
         if (!observe) return;
         if (inView) onActive(idx);
     }, [observe, inView, idx, onActive]);
+
     return (
         <div className={`relative h-[260px] sm:h-[290px] w-fit`}>
             <div className={`w-[280px] sm:w-[500px] ${opened ? "h-fit" : "h-[260px] sm:h-[290px]"} flex flex-col gap-4 font-cormorant p-4 shadow-md rounded-xl`}
@@ -43,7 +46,7 @@ export function TimelineBlock({item, idx, activeIdx, onActive, observe=true}: Ti
                     }}
                 >
                     <Title titleClassName="text-xl sm:text-2xl text-gold" lineColor={'#D9D9D9'}>{item.title}</Title>
-                    <TextBlock className={`text-base max-h-96 sm:max-h-none sm:text-lg ${opened ? "overflow-scroll" : "sm:overflow-auto"}`}>{item.text}</TextBlock>
+                    <TextBlock className={`text-base h-full max-h-96 sm:max-h-none sm:text-lg ${opened ? "overflow-scroll" : "overflow-hidden"}`}>{item.text}</TextBlock>
                 </div>
                 {isTextCropped && (
                     <div className="flex w-full justify-end">
