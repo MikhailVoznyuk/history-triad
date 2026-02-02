@@ -242,7 +242,7 @@ export default function Navigation() {
                     width: radius * 2,
                     height: radius * 2,
                     transform: 'scale(0)'
-                }}></div>
+                }} />
             <div className="absolute w-0 h-0 left-1/2 top-1/2">
                 {PERSONS_DATA.map(
                     (item) => (
@@ -263,7 +263,7 @@ export default function Navigation() {
                 (isNavUsed) ?
                     <div
                         ref={headerRef}
-                        className={"absolute w-fit h-24 min-w-56 left-1/2 top-1/2 -translate-x-1/2  overflow-hidden"}
+                        className={"absolute w-fit h-24 min-w-44 sm:min-w-56  left-1/2 top-1/2 -translate-x-1/2  overflow-hidden"}
                         style={{
                             padding: (isNavUsed) ? '0' : '20px',
                             transform: `${(radius === 200) ? 'translateY(30px)' : 'translateY(10px)'}`,
@@ -285,7 +285,7 @@ export default function Navigation() {
                     </div> :
                     <div
                         ref = {headerEmptyRef}
-                        className="absolute w-fit h-20 sm:h-24 min-w-56 flex align-center justify-center left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0">
+                        className="absolute w-fit h-20 sm:h-24 min-w-44  sm:min-w-52 flex align-center justify-center left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0">
                         <HeaderEmpty />
                     </div>
             }

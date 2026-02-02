@@ -57,7 +57,7 @@ export function HeaderEmpty({scale = 1.08} : {scale?: number}   ) {
     return (
         <motion.h5
             key={'header_empty'}
-            className="font-cormorant w-48 text-lg text-center sm:text-2xl font-semibold origin-center"
+            className="font-cormorant w-44 sm:w-52 text-lg text-center sm:text-2xl font-semibold origin-center"
             initial={{
                 scale: 1,
             }}
