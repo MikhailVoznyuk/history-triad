@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useEffect,useLayoutEffect, useMemo, useRef, useState} from "react";
 import {useMotionValueEvent, useScroll, useTransform} from "framer-motion";
 import {twMerge} from "tailwind-merge";
 import {Title} from "@/shared/ui/text-blocks";
@@ -91,19 +91,23 @@ function MobileTimeLine({items}: {items: TimeLineItem[]}) {
         offset: ["start start", "end end"],
     });
 
-    useEffect(() => {
-        const calc = () => {
-            const stage = stageRef.current;
-            const track = trackRef.current;
-            if (!stage || !track) return;
+    useLayoutEffect(() => {
+        const stage = stageRef.current;
+        const track = trackRef.current;
+        if (!stage || !track) return;
 
+        const calc = () => {
             maxXRef.current = Math.max(0, track.scrollWidth - stage.clientWidth);
         };
 
-        calc();
-        window.addEventListener("resize", calc);
-        return () => window.removeEventListener("resize", calc);
-    }, []);
+        const ro = new ResizeObserver(calc);
+        ro.observe(stage);
+        ro.observe(track);
+
+        requestAnimationFrame(calc);
+
+        return () => ro.disconnect();
+    }, [items.length]);
 
     useMotionValueEvent(scrollYProgress, "change", (p) => {
         const stage = stageRef.current;
@@ -115,13 +119,13 @@ function MobileTimeLine({items}: {items: TimeLineItem[]}) {
         const x = maxXRef.current * p;
         track.style.transform = `translate3d(${-x}px, 0, 0)`;
 
-        const idx = Math.min(items.length - 1, Math.max(0, Math.floor(p * items.length)));
+        const idx = Math.round(p * (items.length - 1));
         setActive((prev) => (prev === idx ? prev : idx));
     });
 
     return (
         <div ref={wrapRef} className="relative w-full" style={{height: `${scrollHeightVh}vh`}}>
-            <div ref={stageRef} className="sticky top-0 h-screen overflow-hidden">
+            <div ref={stageRef} className="sticky top-6 h-screen overflow-hidden">
                 <div className="absolute left-6 right-6 top-[14px] h-1 z-0">
                     <div className="relative h-full w-full rounded-xl">
                         <div className="absolute inset-0 rounded-xl bg-cloud" />
@@ -165,6 +169,7 @@ function MobileTimeLine({items}: {items: TimeLineItem[]}) {
                                         activeIdx={active}
                                         onActive={() => {}}
                                         observe={false}
+                                        isMobile
                                     />
                                 </div>
                             </div>
@@ -178,7 +183,7 @@ function MobileTimeLine({items}: {items: TimeLineItem[]}) {
 
 export function VerticalTimeLine({title, items, className = ""}: Props) {
     return (
-        <section className={twMerge("flex flex-col items-center gap-24 my-32", className)}>
+        <section className={twMerge("flex flex-col items-center gap-12 sm:gap-24 my-32", className)}>
             {title && <Title isCentered={true}>{title}</Title>}
 
             <div className="hidden sm:block w-full">

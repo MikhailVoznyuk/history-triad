@@ -1,3 +1,4 @@
+import React from "react";
 import {useState, useEffect, useRef} from "react";
 import {motion, AnimatePresence, LayoutGroup} from "framer-motion";
 import {FilmImage} from "@/shared/ui/images/fim-image";
@@ -31,7 +32,9 @@ const getSize = (w: number) => {
 }
 
 
-
+const JITTER_PX = 6;
+const CLICK_SUPPRESS_PX = 8;
+const AXIS_LOCK_BIAS_PX = 6;
 
 export function Gallery({items, title}: GalleryItemProps) {
     const [ind, setInd] = useState<number>(0);
@@ -40,9 +43,90 @@ export function Gallery({items, title}: GalleryItemProps) {
 
     const raf = useRef<number | null>(null);
     const wrapRef = useRef<HTMLDivElement | null>(null);
+    const swipeRef = useRef<HTMLDivElement | null>(null);
 
-    const goNext = () => setInd(clamp(ind + 1, items.length));
-    const goPrev = () => setInd(clamp(ind - 1, items.length));
+    const g = useRef({
+        id: -1,
+        down: false,
+        lock: 0 as 0 | 1 | 2,
+        x0: 0,
+        y0: 0,
+        dx: 0,
+        swiped: false
+    })
+
+    const onPointerDown = (e: React.PointerEvent) => {
+        if (openId || g.current.down) return;
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+
+        g.current.id = e.pointerId;
+        g.current.lock = 0;
+        g.current.down =  true;
+        g.current.x0 = e.clientX;
+        g.current.y0 = e.clientY;
+        g.current.dx = 0;
+        g.current.swiped = false;
+
+        swipeRef.current?.setPointerCapture(e.pointerId);
+    }
+
+    const onPointerMove = (e: React.PointerEvent) => {
+        if (!g.current.down || e.pointerId !== g.current.id) return;
+
+        const dx = e.clientX - g.current.x0;
+        const dy = e.clientY - g.current.y0;
+
+
+
+        if (g.current.lock === 0) {
+            const ax = Math.abs(dx);
+            const ay = Math.abs(dy);
+            if (ax < JITTER_PX && ay < JITTER_PX) return;
+            g.current.lock = (ax > ay + AXIS_LOCK_BIAS_PX) ? 1 : 2;
+        }
+
+        if (g.current.lock === 2) return;
+
+        g.current.dx = dx;
+        if (Math.abs(dx) > CLICK_SUPPRESS_PX) {
+            g.current.swiped = true;
+        }
+    }
+
+    const onPointerUp = (e: React.PointerEvent) => {
+        if (e.pointerId !== g.current.id) return;
+
+        const dx = g.current.dx;
+        const width = swipeRef.current?.clientWidth || 0;
+        const thr = Math.max(40, width * 0.12);
+
+        if (g.current.lock === 1 && Math.abs(dx) > thr) {
+            if (dx < 0) {
+                goNext();
+            } else {
+                goPrev();
+            }
+            g.current.swiped = true;
+        }
+
+        g.current.id = -1;
+        g.current.down = false;
+        g.current.x0 = 0;
+        g.current.y0 = 0;
+        g.current.dx = 0;
+        g.current.lock = 0;
+    }
+
+    const onCaptureClick = (e: React.MouseEvent) => {
+        if (g.current.swiped) {
+            e.preventDefault();
+            e.stopPropagation();
+            g.current.swiped = false;
+        }
+    }
+
+    const goNext = () => setInd((i) => clamp(i + 1, items.length));
+    const goPrev = () => setInd((i) => clamp(i - 1, items.length));
 
     const AUTOPLAY_MS = 10000;
 
@@ -67,7 +151,6 @@ export function Gallery({items, title}: GalleryItemProps) {
 
         const onResize = () => {
             if (raf.current !== null) return;
-            console.log(scSize);
             raf.current = requestAnimationFrame(calcWidth);
 
         }
@@ -124,7 +207,13 @@ export function Gallery({items, title}: GalleryItemProps) {
 
                          >
                              <div className={`relative inset-0 overflow-hidden ${(scSize != "sm") ? styles.maskFade : ""}`}
-
+                                  ref={swipeRef}
+                                  style={{touchAction: "pan-y pinch-zoom"}}
+                                  onPointerDown={onPointerDown}
+                                  onPointerMove={onPointerMove}
+                                  onPointerUp={onPointerUp}
+                                  onPointerCancel={onPointerUp}
+                                  onClickCapture={onCaptureClick}
                              >
                                  <motion.div
                                      className={`inset-0 relative flex items-center`}
@@ -258,13 +347,9 @@ export function Gallery({items, title}: GalleryItemProps) {
                                             <Label className="text-base">{opened.caption}</Label>
                                         </div>
                                     }
-
-
                                 </motion.div>
                             </div>
                             </motion.div>
-
-
                         </motion.div>
                     )}
                 </AnimatePresence>

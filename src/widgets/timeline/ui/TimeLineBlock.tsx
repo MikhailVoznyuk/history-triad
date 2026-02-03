@@ -10,13 +10,14 @@ export type TimeLineProps = {
     activeIdx: number;
     onActive: (idx: number) => void;
     observe?: boolean;
+    isMobile?: boolean;
 }
 
-export function TimelineBlock({item, idx, activeIdx, onActive, observe=true}: TimeLineProps) {
+export function TimelineBlock({item, idx, activeIdx, onActive, observe=true, isMobile=false}: TimeLineProps) {
     const [opened, setOpened] = useState<boolean>(false);
 
     const ref = useRef<HTMLDivElement | null>(null);
-    const inView = useInView(ref, {margin: "0% 0% 0% 0%", amount: "all"}); //{margin: "-30% 0% -45% 0%", amount: 0.5})
+    const inView = useInView(ref, {margin: "0% 0% 0% 0%", amount: (isMobile) ? 0.3 : "all"}); //{margin: "-30% 0% -45% 0%", amount: 0.5})
 
     const isTextCropped = item.text.length > 198;
 
