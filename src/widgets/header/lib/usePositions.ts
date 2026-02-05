@@ -11,7 +11,7 @@ export default function usePositions(r: number) {
             bottom: {x: 0, y: R, ang: 90},
             left: {x: -R, y: 0, ang: 180},
             right: {x: R, y: 0, ang: 0},
-            topLeft: {x: -d, y: -d * R, ang: -135},
+            topLeft: {x: -d * R, y: -d * R, ang: -135},
             topRight: {x: d * R, y: -d * R, ang: -45},
             bottomLeft: {x: -d * R, y: d * R, ang: 135},
             bottomRight: {x: d * R, y: d * R, ang: 45}

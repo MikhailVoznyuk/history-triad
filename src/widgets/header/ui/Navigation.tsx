@@ -33,6 +33,13 @@ const PERSONS_DATA: NavItemData[]  = [
         info: '1869–1960',
         img: '/persons/person3.webp',
     },
+    {
+        id: '3',
+        shortName: 'Unknown',
+        info: '1869–1960',
+        img: '/persons/person3.webp',
+    },
+
 ]
 
 
@@ -56,6 +63,7 @@ export default function Navigation() {
     const [isNavUsed, setIsNavUsed] = useState<boolean>(false);
     const [isAnimating, setIsAnimating] = useState<boolean>(false);
 
+    const pl = PERSONS_DATA.length;
 
     const onSelect = (item: NavItemData) => {
         setIsAnimating(true);
@@ -67,16 +75,24 @@ export default function Navigation() {
         const newNavOrder = Array.from({length: navOrderPrev.length}, () => -1);
         const newElements: (HTMLDivElement | null)[] = Array.from({length: elementsRefPrev.length}, () => null);
 
-        const orderPositions: PositionKey[] = ['center', 'left', 'right'];
-        const orderIndexes = [0, 2, 1];
+        const orderPositions: PositionKey[] = (pl === 3) ?
+            ['center', 'left', 'right'] :
+            ['center', 'topLeft', 'bottom', 'topRight']
+        ;
+        const orderIndexes = (pl === 3) ? [0, 2, 1] : [0, 3, 2, 1];
         const indexRelation = new Map<number, number>();
+        const choosedInd = navOrderPrev.findIndex((i) => i === +item.id);
         if (!isNavUsed) {
 
             changeOpacity(headerEmptyRef.current, tl, 0, 400);
 
             const dur = 800;
-            const initPositions: PositionKey[] = ['bottomLeft', 'top', 'bottomRight'];
+            const initPositions: PositionKey[] = (pl === 3) ?
+                ['bottomLeft', 'top', 'bottomRight'] :
+                ['left', 'top', 'right', 'bottom'];
+
             for (let i = 0; i < navOrderPrev.length; i++) {
+                console.log(i);
                 if (navOrderPrev[i] == +item.id) {
                     newNavOrder[0] = navOrderPrev[i];
                     newElements[0] = elementsRefPrev[i];
@@ -86,17 +102,18 @@ export default function Navigation() {
 
                 switch (i) {
                     case 0:
-                        newNavOrder[2] = navOrderPrev[i];
-                        newElements[2] = elementsRefPrev[i];
-                        indexRelation.set(2, i);
+                        if (pl === 3) {
+                            newNavOrder[2] = navOrderPrev[i];
+                            newElements[2] = elementsRefPrev[i];
+                            indexRelation.set(2, i);
+                        } else {
+                            newNavOrder[3] = navOrderPrev[i];
+                            newElements[3] = elementsRefPrev[i];
+                            indexRelation.set(3, i);
+                        }
                         break
                     case 1:
-                        newNavOrder[1] = navOrderPrev[i];
-                        newElements[1] = elementsRefPrev[i];
-                        indexRelation.set(1, i);
-                        break;
-                    case 2:
-                        if (newNavOrder[1] == -1) {
+                        if (pl === 3) {
                             newNavOrder[1] = navOrderPrev[i];
                             newElements[1] = elementsRefPrev[i];
                             indexRelation.set(1, i);
@@ -105,20 +122,58 @@ export default function Navigation() {
                             newElements[2] = elementsRefPrev[i];
                             indexRelation.set(2, i);
                         }
+
+                        break;
+                    case 2:
+                        console.log('cheack order', newNavOrder)
+                        if (pl === 3) {
+                            if (newNavOrder[1] == -1) {
+                                newNavOrder[1] = navOrderPrev[i];
+                                newElements[1] = elementsRefPrev[i];
+                                indexRelation.set(1, i);
+                            } else {
+                                newNavOrder[2] = navOrderPrev[i];
+                                newElements[2] = elementsRefPrev[i];
+                                indexRelation.set(2, i);
+                            }
+                        } else {
+                            newNavOrder[1] = navOrderPrev[i];
+                            newElements[1] = elementsRefPrev[i];
+                            indexRelation.set(1, i);
+                        }
+                        break;
+                    case 3:
+                        if (newNavOrder[1] === -1) {
+                            newNavOrder[1] = navOrderPrev[i];
+                            newElements[1] = elementsRefPrev[i];
+                            indexRelation.set(1, i);
+                        } else if (newNavOrder[3] === -1) {
+                            newNavOrder[3] = navOrderPrev[i];
+                            newElements[3] = elementsRefPrev[i];
+                            indexRelation.set(3, i);
+                        } else {
+                            newNavOrder[1] = navOrderPrev[i];
+                            newElements[1] = elementsRefPrev[i];
+                            newNavOrder[2] = navOrderPrev[i - 1];
+                            newElements[2] = elementsRefPrev[i - 1];
+                            indexRelation.set(1, i);
+                            indexRelation.set(2, i - 1);
+
+                        }
                 }
             }
+
             for (const i of orderIndexes) {
                 const oldInd = indexRelation.get(i) ?? 0;
                 const el = elementsRefPrev[oldInd];
+                console.log(oldInd, initPositions[oldInd],orderPositions[i])
                 if (tlRef.current) {
                     if (i == 0) {
                         linearMove(el, tl, positions[initPositions[oldInd]], positions[orderPositions[i]], 500, 0, 1.4);
                         continue;
                     }
                     arcCW(el, tl, positions[initPositions[oldInd]], positions[orderPositions[i]], radius, dur * 0.8, dur);
-
                 }
-
             }
 
         } else {
@@ -135,26 +190,70 @@ export default function Navigation() {
 
             const prevCenterEl = elementsRefPrev[navOrderPrev[0]];
             const prevLeftEl = elementsRefPrev[navOrderPrev[1]];
-            const prevRightEl = elementsRefPrev[navOrderPrev[2]];
+            const prevBottomEl = (pl == 4) ? elementsRefPrev[navOrderPrev[2]] : null;
+            const prevRightEl = (pl == 4) ? elementsRefPrev[navOrderPrev[3]] : elementsRefPrev[navOrderPrev[2]];
             linearMove(prevCenterEl, tl, positions.center, positions.top, linDur);
             linearMove(newElements[0], tl, positions[orderPositions[prevInd]], positions.center, linDur, 0.8 * linDur, 1.4);
             switch (prevInd) {
                 case 1:
+                    if (pl === 3) {
+                        newNavOrder[1] = navOrderPrev[2];
+                        newElements[1] = prevRightEl;
+                        newNavOrder[2] = navOrderPrev[0];
+                        newElements[2] = prevCenterEl;
+                        arcCW(newElements[2], tl, positions.top, positions[orderPositions[2]], radius, 0,  arcDur);
+                        arcCW(newElements[1], tl, positions[orderPositions[2]], positions[orderPositions[1]], radius, 0.8 * arcDur, arcDur);
+
+                    } else {
+                        newNavOrder[1] = navOrderPrev[2];
+                        newElements[1] = prevBottomEl;
+                        newNavOrder[2] = navOrderPrev[3];
+                        newElements[2] = prevRightEl;
+                        newNavOrder[3] = navOrderPrev[0];
+                        newElements[3] = prevCenterEl;
+                        arcCW(newElements[1], tl, positions[orderPositions[2]], positions[orderPositions[1]], radius, 0, arcDur);
+                        arcCW(newElements[2], tl, positions[orderPositions[3]], positions[orderPositions[2]], radius, 0, arcDur);
+                        console.log(orderPositions)
+                        arcCW(newElements[3], tl, positions.top, positions[orderPositions[3]], radius, 0, arcDur);
+                    }
+                    break;
+
+
+                case 2:
+                    if (pl === 3) {
+                        newNavOrder[1] = navOrderPrev[0];
+                        newElements[1] = prevCenterEl;
+                        newNavOrder[2] = navOrderPrev[1];
+                        newElements[2] = prevLeftEl;
+                        arcCW(newElements[1], tl, positions.top, positions[orderPositions[1]], radius, 0, arcDur);
+                        arcCW(newElements[2], tl, positions[orderPositions[1]], positions[orderPositions[2]], radius, 0.8 * arcDur, arcDur);
+                    } else {
+                        newNavOrder[1] = navOrderPrev[3];
+                        newElements[1] = prevRightEl;
+                        newNavOrder[2] = navOrderPrev[0];
+                        newElements[2] = prevCenterEl;
+                        newNavOrder[3] = navOrderPrev[1];
+                        newElements[3] = prevLeftEl;
+                        arcCW(newElements[1], tl, positions[orderPositions[3]], positions[orderPositions[1]], radius, 0.8 * arcDur, arcDur);
+                        arcCW(newElements[2], tl, positions.top, positions[orderPositions[2]], radius, 0.8 * arcDur, arcDur);
+                        arcCW(newElements[3], tl, positions[orderPositions[1]], positions[orderPositions[3]], radius, 0.8 * arcDur, arcDur);
+                    }
+                    break
+
+                case 3:
+                    if (pl === 3) break;
+
                     newNavOrder[1] = navOrderPrev[2];
-                    newElements[1] = prevRightEl;
+                    newElements[1] = prevBottomEl;
                     newNavOrder[2] = navOrderPrev[0];
                     newElements[2] = prevCenterEl;
-
-                    arcCW(newElements[2], tl, positions.top, positions[orderPositions[2]], radius, 0,  arcDur);
+                    newNavOrder[3] = navOrderPrev[1];
+                    newElements[3] = prevLeftEl;
                     arcCW(newElements[1], tl, positions[orderPositions[2]], positions[orderPositions[1]], radius, 0.8 * arcDur, arcDur);
-                    break
-                case 2:
-                    newNavOrder[1] = navOrderPrev[0];
-                    newElements[1] = prevCenterEl;
-                    newNavOrder[2] = navOrderPrev[1];
-                    newElements[2] = prevLeftEl;
-                    arcCW(newElements[1], tl, positions.top, positions[orderPositions[1]], radius, 0, arcDur);
-                    arcCW(newElements[2], tl, positions[orderPositions[1]], positions[orderPositions[2]], radius, 0.8 * arcDur, arcDur);
+                    arcCW(newElements[2], tl, positions.top, positions[orderPositions[2]], radius, 0.8 * arcDur, arcDur);
+                    arcCW(newElements[3], tl, positions[orderPositions[1]], positions[orderPositions[3]], radius, 0.8 * arcDur, arcDur);
+
+
             }
         }
 
@@ -164,15 +263,21 @@ export default function Navigation() {
             person.set(+item.id);
 
         })
-
         navOrderRef.current = newNavOrder;
     }
     useEffect(() => {
         if (isNavInit || isNavUsed) return;
         tlRef.current = makeTimeline({autoplay: true});
-        initPosition(elementsRef.current[0], tlRef.current, positions.center, positions.bottomLeft);
-        initPosition(elementsRef.current[1], tlRef.current, positions.center, positions.top);
-        initPosition(elementsRef.current[2], tlRef.current, positions.center, positions.bottomRight);
+        if (pl === 3) {
+            initPosition(elementsRef.current[0], tlRef.current, positions.center, positions.bottomLeft);
+            initPosition(elementsRef.current[1], tlRef.current, positions.center, positions.top);
+            initPosition(elementsRef.current[2], tlRef.current, positions.center, positions.bottomRight);
+        } else {
+            initPosition(elementsRef.current[0], tlRef.current, positions.center, positions.left);
+            initPosition(elementsRef.current[1], tlRef.current, positions.center, positions.top);
+            initPosition(elementsRef.current[2], tlRef.current, positions.center, positions.right);
+            initPosition(elementsRef.current[3], tlRef.current, positions.center, positions.bottom);
+        }
         initCircle(circleRef.current);
         changeOpacity(headerEmptyRef.current, tlRef.current, 1, 400);
     }, []);
@@ -205,15 +310,20 @@ export default function Navigation() {
 
     useLayoutEffect(() => {
         const els = elementsRef.current;
-        if (!els[0] || !els[1] || !els[2]) return;
+        if (!els[0] || !els[1] || !els[2] || (PERSONS_DATA.length === 4 && !els[3])) return;
 
-        const slots: PositionKey[] = isNavUsed
-            ? ["center", "left", "right"]
-            : ["bottomLeft", "top", "bottomRight"];
+        const slots: PositionKey[] = PERSONS_DATA.length === 3 ?
+            (isNavUsed ?
+                ["center", "left", "right"] :
+                ["bottomLeft", "top", "bottomRight"]) :
+            (isNavUsed ?
+                ["center", "topLeft", "bottom", "topRight"] :
+                ['left', 'top', 'right', 'bottom'])
 
-        const order = isNavUsed ? navOrderRef.current : [0, 1, 2];
 
-        for (let k = 0; k < 3; k++) {
+        const order = isNavUsed ? navOrderRef.current : ((pl === 3) ? [0, 1, 2] : [0, 1, 2, 3, 4]);
+
+        for (let k = 0; k < slots.length; k++) {
             const id = order[k];
             const el = els[id];
             if (!el) continue;
@@ -254,7 +364,6 @@ export default function Navigation() {
                             key={item.id}
                             onSelect={() => (+item.id != person.idx) && onSelect(item)}
                             isAnimating={isAnimating}
-
                         />
                     ))
                 }
