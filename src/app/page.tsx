@@ -12,12 +12,11 @@ import {Label} from "@/shared/ui/text-blocks";
 import {VerticalTimeLine} from "@/widgets/timeline/ui/VerticalTimeLine";
 import {Gallery} from "@/widgets/gallery";
 import {ScrollToNavButton} from "@/widgets/nav-scroll";
+import {MusicControl} from "@/widgets/music-control";
 import {Reveal} from "@/shared/ui/reveal";
-import {TIMELINE} from "@/widgets/timeline/model/data";
 import {persons} from "@/entities/model/data/persons";
 import type {PersonData} from "@/widgets/person-hero/ui/PersonHero";
 import type {ContentSection} from "@/entities/model/types";
-import {Reem_Kufi} from "next/dist/compiled/@next/font/dist/google";
 
 
 const BACKGROUND_URLS = [
@@ -109,6 +108,7 @@ export default function Home() {
                         </Reveal>
                     </div>
                 </div>
+                <MusicControl isVisible={person.idx !== -1} />
                 <ScrollToNavButton navId={navAnchorId} isVisible={person.idx !== -1} />
 
             </main>
