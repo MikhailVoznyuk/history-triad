@@ -18,7 +18,7 @@ export function ScrollToNavButton({navId, isVisible}: Props) {
             className={`fixed z-10 bottom-3 right-3 sm:bottom-8 sm:right-8 size-12 sm:size-14  rounded-full flex justify-center items-center bg-gold hover:bg-cloud cursor-pointer}`}
             style={{
                 opacity: isVisible ? 1 : 0,
-                transition: "0.3s ease-out",
+                transition: "opacity 0.3s ease-out",
                 boxShadow: "0 0 8px black",
             }}
         >
