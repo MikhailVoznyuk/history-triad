@@ -29,7 +29,7 @@ export function Title(
         )}
         >
             <h2 className={twMerge(
-                'font-cormorant text-cloud  text-3xl font-semibold',
+                'font-cormorant text-cloud  text-3xl font-semibold select-none',
                 titleClassName
             )}>{title || children}</h2>
             {lineNeeded && (
