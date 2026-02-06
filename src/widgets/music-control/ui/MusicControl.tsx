@@ -1,3 +1,5 @@
+'use client';
+
 import Image from "next/image";
 import {useState, useRef, useCallback} from "react";
 import {StepButton} from "@/shared/ui/buttons";
