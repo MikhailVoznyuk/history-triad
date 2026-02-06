@@ -39,7 +39,7 @@ function TextImageBlock(props: TextImageBlockProps) {
             </div>
             <Reveal>
                 <FilmImage
-                    imageClassName="w-[500px] h-auto"
+                    imageClassName="w-[500px] h-auto max-h-[600px]"
                     width={400}
                     height={300}
                     imgSrc={props.imgSrc}

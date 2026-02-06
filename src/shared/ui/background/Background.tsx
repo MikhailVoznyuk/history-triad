@@ -14,6 +14,7 @@ export function Background({img, priority=false}: BackgroundProps) {
                     fill
                     sizes="100vw"
                     className="object-cover"
+                    style={{filter: "grayscale(1)"}}
                     priority={priority}
                     alt="background"
                 />

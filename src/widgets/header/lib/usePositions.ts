@@ -3,7 +3,10 @@ import {useMemo} from 'react';
 export default function usePositions(r: number) {
     return useMemo(() => {
         const R = r;
-        const d = Math.SQRT1_2;
+        const a = Math.PI / 6;
+        const cx = Math.cos(a);
+        const sy = Math.sin(a);
+
 
         return {
             center: {x: 0, y: -R * 0.4, ang: 0},
@@ -11,10 +14,10 @@ export default function usePositions(r: number) {
             bottom: {x: 0, y: R, ang: 90},
             left: {x: -R, y: 0, ang: 180},
             right: {x: R, y: 0, ang: 0},
-            topLeft: {x: -d, y: -d * R, ang: -135},
-            topRight: {x: d * R, y: -d * R, ang: -45},
-            bottomLeft: {x: -d * R, y: d * R, ang: 135},
-            bottomRight: {x: d * R, y: d * R, ang: 45}
+            topLeft: {x: -cx * R, y: -sy * R, ang: -150},
+            topRight: {x: cx  * R, y: -sy * R, ang: -30},
+            bottomLeft: {x: -cx * R, y: sy * R, ang: 150},
+            bottomRight: {x: cx * R, y: sy * R, ang: 30}
         } as const
     }, [r]);
 }
