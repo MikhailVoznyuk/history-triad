@@ -38,7 +38,7 @@ export function MovingHeader({idx, headers}: MovingHeaderProps) {
                         animate="enter"
                         exit="exit"
                     >
-                        <div className="absolute inset-0 flex flex-col gap-3">
+                        <div className="absolute inset-0 flex flex-col gap-3 select-none">
                             <h5 className="font-cormorant text-center text-xl sm:text-3xl font-semibold">
                                 {headers[idx].mainText}
                             </h5>
@@ -57,7 +57,7 @@ export function HeaderEmpty({scale = 1.08} : {scale?: number}   ) {
     return (
         <motion.h5
             key={'header_empty'}
-            className="font-cormorant w-44 sm:w-52 text-lg text-center sm:text-2xl font-semibold origin-center"
+            className="font-cormorant w-44 sm:w-52 text-lg text-center sm:text-2xl font-semibold origin-center select-none"
             initial={{
                 scale: 1,
             }}

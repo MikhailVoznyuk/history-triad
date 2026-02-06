@@ -9,7 +9,7 @@ export function Label({children, className="", style={}}:
                       }) {
     return (
         <span
-            className={twMerge("font-cormorant text-base sm:text-lg text-cloud", className)}
+            className={twMerge("font-cormorant text-base sm:text-lg text-cloud select-none", className)}
               style={style}
         >
             {children}</span>
