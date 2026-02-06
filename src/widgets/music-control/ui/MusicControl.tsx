@@ -9,9 +9,15 @@ type MusicControlProps = {
 }
 
 export function MusicControl({isVisible}: MusicControlProps) {
+    const isIOS = () =>
+        /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+
     const music = useMusic();
     const [isActive, setIsActive] = useState<boolean>(false);
     const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const usedIOS = isIOS();
 
     const updateTimeout = () => {
         if (closeTimeoutRef.current !== null) {
@@ -41,6 +47,10 @@ export function MusicControl({isVisible}: MusicControlProps) {
 
         //updateTimeout();
     }, [music]);
+
+
+
+
 
     // Функции для потенциально скрытия панели при смещении с нее курсора
 
@@ -94,13 +104,19 @@ export function MusicControl({isVisible}: MusicControlProps) {
 
                     </div>
                 </button>
-                <div className={`absolute -z-1 left-6 sm:left-8  bg-cloud rounded-r-full h-9 sm:h-10 ${isActive ? 'w-50 sm:w-56' : 'w-0'} transition-all duration-300 ease-out delay-75 overflow-hidden`}>
+                <div className={`absolute -z-1 left-6 sm:left-8  bg-cloud rounded-r-full h-9 sm:h-10 ${!isActive ? 'w-0' : (usedIOS) ? 'w-[171px] sm:w-[193px]' : 'w-50 sm:w-56'} transition-all duration-300 ease-out delay-75 overflow-hidden`}>
                     <div className='relative size-full p-1 pl-5 flex gap-2 font-mono font-normal text-graphite text-text-center'>
-                        <div className='flex gap-1 items-center px-1'>
-                            <StepButton onClick={() => volumeStepOnClick('dec')} direction='dec'  disabled={music.volume === 0}/>
-                            <span className='text-lg sm:text-xl w-11 text-center'>{`${Math.round(music.volume * 100)}%`}</span>
-                            <StepButton onClick={() =>  volumeStepOnClick('inc')} direction='inc' disabled={music.volume === 1}/>
-                        </div>
+                        {
+                            !isIOS() && (
+                                <div className='flex gap-1 items-center px-1'>
+                                    <StepButton onClick={() => volumeStepOnClick('dec')} direction='dec'  disabled={music.volume === 0}/>
+                                    <span className='text-lg sm:text-xl w-11 text-center'>{`${Math.round(music.volume * 100)}%`}</span>
+                                    <StepButton onClick={() =>  volumeStepOnClick('inc')} direction='inc' disabled={music.volume === 1}/>
+                                </div>
+                            )
+
+                        }
+
                         <button
                             onClick={toggleMusic}
                             className='w-14 sm:w-16 flex justify-center items-center font-semibold px-1 sm:px-2 py-0.5 rounded-3xl text-base  sm:text-lg bg-gold hover:bg-white transition-all duration-300 ease-out delay-75'>
