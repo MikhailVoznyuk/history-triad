@@ -52,8 +52,9 @@ export function Gallery({items, title}: GalleryItemProps) {
         x0: 0,
         y0: 0,
         dx: 0,
-        swiped: false
-    })
+        swiped: false,
+        captured: false
+    });
 
     const onPointerDown = (e: React.PointerEvent) => {
         if (openId || g.current.down) return;
@@ -66,8 +67,6 @@ export function Gallery({items, title}: GalleryItemProps) {
         g.current.y0 = e.clientY;
         g.current.dx = 0;
         g.current.swiped = false;
-
-        swipeRef.current?.setPointerCapture(e.pointerId);
     }
 
     const onPointerMove = (e: React.PointerEvent) => {
@@ -83,6 +82,7 @@ export function Gallery({items, title}: GalleryItemProps) {
             const ay = Math.abs(dy);
             if (ax < JITTER_PX && ay < JITTER_PX) return;
             g.current.lock = (ax > ay + AXIS_LOCK_BIAS_PX) ? 1 : 2;
+            swipeRef.current?.setPointerCapture(e.pointerId);
         }
 
         if (g.current.lock === 2) return;
@@ -109,12 +109,19 @@ export function Gallery({items, title}: GalleryItemProps) {
             g.current.swiped = true;
         }
 
+        if (g.current.captured) {
+            try {
+                swipeRef.current?.releasePointerCapture(e.pointerId);
+            } catch {}
+        }
+
         g.current.id = -1;
         g.current.down = false;
         g.current.x0 = 0;
         g.current.y0 = 0;
         g.current.dx = 0;
         g.current.lock = 0;
+
     }
 
     const onCaptureClick = (e: React.MouseEvent) => {

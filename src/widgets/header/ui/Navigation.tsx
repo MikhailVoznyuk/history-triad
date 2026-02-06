@@ -19,25 +19,25 @@ const PERSONS_DATA: NavItemData[]  = [
         id: '0',
         shortName: 'Елисеев.Г.Г',
         info: '1864–1949',
-        img: '/persons/person1.webp',
+        img: '/persons/eliseev/person.webp',
     },
     {
         id: '1',
         shortName: 'Мартьянов Н.M',
         info: '1844–1904',
-        img: '/persons/person2.webp',
+        img: '/persons/martyanov/person.webp',
     },
     {
         id: '2',
         shortName: 'Лагидзе М.В',
         info: '1869–1960',
-        img: '/persons/person3.webp',
+        img: '/persons/lagidze/person.webp',
     },
     {
         id: '3',
-        shortName: 'Unknown',
-        info: '1869–1960',
-        img: '/persons/person3.webp',
+        shortName: 'Мартьянов П.Н',
+        info: '1862–1911',
+        img: '/persons/martyanich/person.webp',
     },
 
 ]
