@@ -48,6 +48,37 @@ export function MusicProvider({ children }: {children: React.ReactNode}) {
         }
     }, [volume]);
 
+    useEffect(() => {
+        const el = a.current;
+        if (!el) return;
+
+        let wasPlaying = false;
+
+        const onVis = () => {
+            if (document.hidden) {
+                wasPlaying = !el.paused;
+                el.pause();
+                setIsPlaying(false);
+
+            } else {
+                wasPlaying = false;
+            }
+        };
+
+        const onPageHide = () => {
+            el.pause();
+            setIsPlaying(false);
+        };
+
+        document.addEventListener("visibilitychange", onVis);
+        window.addEventListener("pagehide", onPageHide);
+
+        return () => {
+            document.removeEventListener("visibilitychange", onVis);
+            window.removeEventListener("pagehide", onPageHide);
+        }
+    }, []);
+
     const play = useCallback(async () => {
         if (!a.current) return;
 

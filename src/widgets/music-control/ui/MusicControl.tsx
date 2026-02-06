@@ -94,7 +94,7 @@ export function MusicControl({isVisible}: MusicControlProps) {
 
                     </div>
                 </button>
-                <div className={`absolute -z-1 left-6 sm:left-8  bg-cloud rounded-r-full h-fit ${isActive ? 'w-50 sm:w-56' : 'w-0'} transition-all duration-300 ease-out delay-75 overflow-hidden`}>
+                <div className={`absolute -z-1 left-6 sm:left-8  bg-cloud rounded-r-full h-9 sm:h-10 ${isActive ? 'w-50 sm:w-56' : 'w-0'} transition-all duration-300 ease-out delay-75 overflow-hidden`}>
                     <div className='relative size-full p-1 pl-5 flex gap-2 font-mono font-normal text-graphite text-text-center'>
                         <div className='flex gap-1 items-center px-1'>
                             <StepButton onClick={() => volumeStepOnClick('dec')} direction='dec'  disabled={music.volume === 0}/>
