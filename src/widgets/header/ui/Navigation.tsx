@@ -5,13 +5,14 @@ import {useState, useEffect, useLayoutEffect, useRef} from "react";
 import NavItem from "@/widgets/header/ui/NavItem";
 import usePositions from "@/widgets/header/lib/usePositions";
 import {makeTimeline} from "@/shared/lib/anime";
-import {initCircle, initPosition, linearMove, arcCW, changeOpacity, customTranslate} from "@/widgets/header/lib/animations";
+import {initCircle, initPosition, linearMove, arcCW, changeOpacity} from "@/widgets/header/lib/animations";
 import {useSelectPerson} from "@/features/select-person";
+import {useMusic} from "@/app/providers/MusicProvider";
 import {MovingHeader, HeaderEmpty} from "@/widgets/header/ui/movingHeader";
 import {animeUtils} from "@/shared/lib/anime";
 
 import type {NavItemData} from "@/widgets/header/model/types";
-import type {Scope, TL} from "@/shared/lib/anime";
+import type {TL} from "@/shared/lib/anime";
 import type {PositionKey} from "@/widgets/header/lib/usePositions";
 
 const PERSONS_DATA: NavItemData[]  = [
@@ -46,13 +47,13 @@ const PERSONS_DATA: NavItemData[]  = [
 export default function Navigation() {
     const getRad = () => (typeof window !== "undefined" && window.innerWidth < 500 ) ? 120 : 200;
     const person = useSelectPerson();
+    const music = useMusic();
     const [radius, setRadius] = useState(getRad());
     const positions = usePositions(radius);
     const navOrderRef = useRef<number[]>(PERSONS_DATA.map((el) => +el.id));
 
     const rootRef = useRef<HTMLDivElement | null>(null);
     const elementsRef = useRef<(HTMLDivElement | null)[]>([]);
-    const scopeRef = useRef<Scope | null>(null);
     const tlRef = useRef<TL | null>(null);
     const circleRef = useRef<HTMLDivElement | null>(null);
     const headerRef = useRef<HTMLDivElement | null>(null);
@@ -81,7 +82,6 @@ export default function Navigation() {
         ;
         const orderIndexes = (pl === 3) ? [0, 2, 1] : [0, 3, 2, 1];
         const indexRelation = new Map<number, number>();
-        const choosedInd = navOrderPrev.findIndex((i) => i === +item.id);
         if (!isNavUsed) {
 
             changeOpacity(headerEmptyRef.current, tl, 0, 400);
@@ -92,7 +92,6 @@ export default function Navigation() {
                 ['left', 'top', 'right', 'bottom'];
 
             for (let i = 0; i < navOrderPrev.length; i++) {
-                console.log(i);
                 if (navOrderPrev[i] == +item.id) {
                     newNavOrder[0] = navOrderPrev[i];
                     newElements[0] = elementsRefPrev[i];
@@ -261,8 +260,9 @@ export default function Navigation() {
             setIsAnimating(false);
             setIsNavUsed(true);
             person.set(+item.id);
+            music.start();
+        });
 
-        })
         navOrderRef.current = newNavOrder;
     }
     useEffect(() => {
