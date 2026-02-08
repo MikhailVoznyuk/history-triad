@@ -182,6 +182,16 @@ export const LAGIDZE_CONTENT: PersonContent = {
                     src: "/persons/lagidze/gallery/lagidze-water-tbilisi.webp",
                     caption: "Тифлис начала XX века: улица старого города.",
                 },
+                {
+                    id: "g5",
+                    src: "/persons/lagidze/gallery/limonade_development.webp",
+                    caption: "Производство лимонадов: лабораторная работа и контроль качества (советский период).",
+                },
+                {
+                    id: "g6",
+                    src: "/persons/lagidze/gallery/limonade_stall.webp",
+                    caption: "Киоск «Воды Лагидзе» (осн. 1887): уличная точка продажи фирменных напитков в Тбилиси.",
+                },
             ],
         },
     ],
