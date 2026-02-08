@@ -1,7 +1,7 @@
 'use client';
 
 import Image from "next/image";
-import {useState, useRef, useCallback} from "react";
+import {useState, useEffect, useRef, useCallback} from "react";
 import {StepButton} from "@/shared/ui/buttons";
 import {useMusic} from "@/app/providers/MusicProvider";
 
@@ -11,15 +11,26 @@ type MusicControlProps = {
 }
 
 export function MusicControl({isVisible}: MusicControlProps) {
-    const isIOS = () =>
-        /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-
-
     const music = useMusic();
     const [isActive, setIsActive] = useState<boolean>(false);
     const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const usedIOS = isIOS();
+    const [usedIOS, setUsedIOS] = useState<boolean>(false);
+
+    useEffect(() => {
+        const id = requestAnimationFrame(() => {
+            const ua = navigator.userAgent || '';
+            const platform = navigator.platform || '';
+            const touch = (navigator.maxTouchPoints || 0) > 0;
+
+            setUsedIOS(
+                /iPhone|iPad|iPod/i.test(ua) ||
+                /iPhone|iPad|iPod/i.test(platform) ||
+                (ua.includes("Mac") && touch)
+            );
+        });
+
+        return () => cancelAnimationFrame(id);
+    }, [])
 
     const updateTimeout = () => {
         if (closeTimeoutRef.current !== null) {
@@ -73,13 +84,13 @@ export function MusicControl({isVisible}: MusicControlProps) {
             className='fixed z-10 left-4 sm:left-8 bottom-4 sm:bottom-8 '
             style={{
                 opacity: isVisible ? 1 : 0,
-                transition: 'opacity 0.3s easeOut',
+                transition: 'opacity 0.3s ease-out',
             }}
         >
             <div className='relative size-full flex items-center'>
                 <button
                     onClick={widgetOnClick}
-                    className={`size-10 sm:size-12 rounded-full flex justify-center items-center ${music.isPlaying ? 'bg-gold' : 'bg-cloud'} duration-300 ease-out`}
+                    className={`relative z-20 size-10 sm:size-12 rounded-full flex justify-center items-center ${music.isPlaying ? 'bg-gold' : 'bg-cloud'} duration-300 ease-out`}
                     style={{
                         boxShadow: '0 0 4px rgb(0, 0, 0)',
                     }}
@@ -93,7 +104,7 @@ export function MusicControl({isVisible}: MusicControlProps) {
                         style={{
                             opacity: isActive ? 0 : 1,
 
-                            transition: '0.3s easeOut',
+                            transition: '0.3s ease-out',
                         }}
                     />
 
@@ -106,7 +117,7 @@ export function MusicControl({isVisible}: MusicControlProps) {
 
                     </div>
                 </button>
-                <div className={`absolute -z-1 left-6 sm:left-8  bg-cloud rounded-r-full h-9 sm:h-10 ${!isActive ? 'w-0' : (usedIOS) ? 'w-[84px] sm:w-[100px]' : 'w-50 sm:w-56'} transition-all duration-300 ease-out delay-75 overflow-hidden`}>
+                <div className={`absolute z-10 left-6 sm:left-8  bg-cloud rounded-r-full h-9 sm:h-10 ${!isActive ? 'w-0' : (usedIOS) ? 'w-[84px] sm:w-[100px]' : 'w-50 sm:w-56'} transition-all duration-300 ease-out delay-75 overflow-hidden`}>
                     <div className={`relative size-full p-1 pl-5 flex gap-2 ${usedIOS ? 'justify-end' : ''}  font-mono font-normal text-graphite text-text-center`}>
                         {
                             !usedIOS && (
